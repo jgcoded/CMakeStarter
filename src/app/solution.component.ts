@@ -34,4 +34,21 @@ export class SolutionComponent implements OnInit {
   gotoDetail(): void {
     this.router.navigate(['/detail', this.selectedProject.name]);
   }
+
+  projectTypeToString(type: ProjectType): string {
+      switch (type) {
+        case ProjectType.Exectuable:
+          return "EX";
+
+        case ProjectType.SharedLibrary:
+          return "SH";
+
+        case ProjectType.StaticLibrary:
+          return "ST";
+      
+        default:
+          break;
+      }
+      return "Invalid Project";
+  }
 }

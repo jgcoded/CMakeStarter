@@ -4,7 +4,7 @@
   <li *ngFor="let project of projects"
       [class.selected]="project === selectedProject"
       (click)="onSelect(project)">
-      <span class="badge">{{project.type}}</span> {{project.name}}
+      <span class="badge">{{projectTypeToString(project.type)}}</span> {{project.name}}
   </li>
 </ul>
 

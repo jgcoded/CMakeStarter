@@ -3,7 +3,7 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
 import { ProjectService } from './project.service';
 import 'rxjs/add/operator/switchMap';
-import { Project, CMakeThirdPartyProject } from './models';
+import { Project, ProjectType, CMakeThirdPartyProject } from './models';
 
 @Component({
     selector: 'project-detail',
@@ -40,5 +40,22 @@ export class ProjectDetailComponent implements OnInit {
       if((<CMakeThirdPartyProject>this.project).cmakeArguments !== undefined) {
         (<CMakeThirdPartyProject>this.project).cmakeArguments.splice(index, 1);
       }
+    }
+
+    projectTypeToString(type: ProjectType): string {
+      switch (type) {
+        case ProjectType.Exectuable:
+          return "Executable";
+
+        case ProjectType.SharedLibrary:
+          return "Shared Library";
+
+        case ProjectType.StaticLibrary:
+          return "Static Library";
+      
+        default:
+          break;
+      }
+      return "Invalid Project";
     }
 }

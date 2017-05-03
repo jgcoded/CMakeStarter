@@ -1,6 +1,6 @@
 <div *ngIf="project">
   <h2>{{project.name}} details</h2>
-  <div><label>Project Type: </label>{{project.type}}</div>
+  <div><label>Project Type: </label>{{projectTypeToString(project.type)}}</div>
   <div>
     <label>name: </label>
     <input [(ngModel)]="project.name" placeholder="name" />
