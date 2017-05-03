@@ -6,22 +6,34 @@
     <input [(ngModel)]="project.name" placeholder="name" />
   </div>
 
-  <button (click)="goBack()">Back</button>
-
   <div *ngIf="project.cmakeArguments">
-    with cmake arguments
+    <label>CMake Arguments</label>
+    <div *ngFor="let arg of project.cmakeArguments; let i=index">
+      <input size="80" [(ngModel)]="project.cmakeArguments[i]" />
+      <button (click)="removeCMakeArgument(i)">Remove</button>
+    </div>
+
+    <button [disabled]="project.cmakeArguments[project.cmakeArguments.length - 1].length == 0" (click)="addCMakeArgument()">Add Argument</button>
   </div>
 
   <div *ngIf="project.configureCommand">
-    With configure commands
+      <label>Configure Command: </label>
+      <textarea rows="10" cols="80" [(ngModel)]="project.configureCommand" placeholder="A command that CMake will execute. e.g., /configure">
+      </textarea>
   </div>
 
   <div *ngIf="project.buildCommand">
-    With build command
+      <label>Build Command: </label>
+      <textarea rows="10" cols="80" [(ngModel)]="project.buildCommand" placeholder="A command that CMake will execute. e.g., make">
+      </textarea>
   </div>
-
 
   <div *ngIf="project.installCommand">
-    With install command
+      <label>Install Command: </label>
+      <textarea rows="10" cols="80" [(ngModel)]="project.installCommand" placeholder="A command that CMake will execute. e.g., make install">
+      </textarea>
   </div>
+
+  <button (click)="goBack()">Back</button>
+
 </div>

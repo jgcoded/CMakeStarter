@@ -1,6 +1,5 @@
 label {
   display: inline-block;
-  width: 3em;
   margin: .5em 0;
   color: #607D8B;
   font-weight: bold;
@@ -26,4 +25,7 @@ button:disabled {
   background-color: #eee;
   color: #ccc; 
   cursor: auto;
+}
+textarea {
+  display: block;
 }

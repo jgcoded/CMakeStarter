@@ -3,11 +3,12 @@ import { ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
 import { ProjectService } from './project.service';
 import 'rxjs/add/operator/switchMap';
-import { Project } from './models';
+import { Project, CMakeThirdPartyProject } from './models';
 
 @Component({
     selector: 'project-detail',
-    templateUrl: './project-detail.component.html'
+    templateUrl: './project-detail.component.html',
+    styleUrls: ['./project-detail.component.css']
 })
 export class ProjectDetailComponent implements OnInit {
 
@@ -27,5 +28,17 @@ export class ProjectDetailComponent implements OnInit {
 
     goBack(): void {
       this.location.back();
+    }
+
+    addCMakeArgument(): void {
+      if((<CMakeThirdPartyProject>this.project).cmakeArguments !== undefined) {
+        (<CMakeThirdPartyProject>this.project).cmakeArguments.push('');
+      }
+    }
+
+    removeCMakeArgument(index: number): void {
+      if((<CMakeThirdPartyProject>this.project).cmakeArguments !== undefined) {
+        (<CMakeThirdPartyProject>this.project).cmakeArguments.splice(index, 1);
+      }
     }
 }
