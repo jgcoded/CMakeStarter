@@ -1,0 +1,27 @@
+<div *ngIf="project">
+  <h2>{{project.name}} details</h2>
+  <div><label>Project Type: </label>{{project.type}}</div>
+  <div>
+    <label>name: </label>
+    <input [(ngModel)]="project.name" placeholder="name" />
+  </div>
+
+  <button (click)="goBack()">Back</button>
+
+  <div *ngIf="project.cmakeArguments">
+    with cmake arguments
+  </div>
+
+  <div *ngIf="project.configureCommand">
+    With configure commands
+  </div>
+
+  <div *ngIf="project.buildCommand">
+    With build command
+  </div>
+
+
+  <div *ngIf="project.installCommand">
+    With install command
+  </div>
+</div>
