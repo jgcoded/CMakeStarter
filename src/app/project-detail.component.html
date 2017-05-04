@@ -1,11 +1,14 @@
 <div *ngIf="project">
+
   <h2>{{project.name}} details</h2>
+
   <div>
     <label>Project Type: </label>
     <select [(ngModel)]="project.type">
       <option *ngFor="let type of projectTypeToName; let i=index" [value]="i">{{type}}</option>
     </select>
   </div>
+
   <div>
     <label>name: </label>
     <input [(ngModel)]="project.name" placeholder="name" />
@@ -37,6 +40,16 @@
       <label>Install Command: </label>
       <textarea rows="10" cols="80" [(ngModel)]="project.installCommand" placeholder="A command that CMake will execute. e.g., make install">
       </textarea>
+  </div>
+
+  <div>
+    <label>Dependencies</label>
+    <ul>
+      <li *ngFor="let dependency of projectDependencies">
+        <a [routerLink]="['/detail', dependency.id]">{{dependency.name}}</a>
+      </li>
+    </ul>
+
   </div>
 
   <button (click)="goBack()">Back</button>

@@ -21,7 +21,7 @@ export class ProjectService {
       .then(projects => projects.find(project => project.id === id));
   }
 
-  getDependencies(id: number) : Promise<Array<number>> {
-    return Promise.resolve(DEPENDENCY_GRAPH[id]);
+  getDependencies(id: number) : Promise<Array<Project>> {
+    return Promise.resolve(DEPENDENCY_GRAPH.get(id)).then(depIds => Promise.all(depIds.map(depId => this.getProject(depId))));
   }
 }

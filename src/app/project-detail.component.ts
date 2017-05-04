@@ -25,12 +25,18 @@ export class ProjectDetailComponent implements OnInit {
 
     project: Project;
     projectTypeToName: Array<string>;
+    projectDependencies: Array<Project>;
 
     ngOnInit(): void {
       this.route.params
         .switchMap((params: Params) => this.projectService.getProject(+params['id']))
         .subscribe(project => this.project = project);
-        this.projectTypeToName = PROJECT_TYPE_TO_NAME;
+
+      this.route.params
+        .switchMap((params: Params) => this.projectService.getDependencies(+params['id']))
+        .subscribe(dependencies => this.projectDependencies = dependencies);
+
+      this.projectTypeToName = PROJECT_TYPE_TO_NAME;
     }
 
     goBack(): void {

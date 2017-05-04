@@ -41,7 +41,7 @@ export const CMAKE_PROJECTS: CMakeThirdPartyProject[] = [
     }
 ];
 
-export const DEPENDENCY_GRAPH: AdjacencyList = new Map<number, Array<number>>([
+export const DEPENDENCY_GRAPH = new Map<number, Array<number>>([
 // 0 = solver has no dependencies
 [0, []],
 // 1 = tool depends solver
