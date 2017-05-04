@@ -3,6 +3,12 @@ import { Router } from '@angular/router';
 import { Project, ProjectType } from './models';
 import { ProjectService } from './project.service';
 
+
+const PROJECT_TYPE_TO_BADGE: Array<string> = new Array<string>();
+PROJECT_TYPE_TO_BADGE[ProjectType.Exectuable] = "EX";
+PROJECT_TYPE_TO_BADGE[ProjectType.SharedLibrary] = "SH";
+PROJECT_TYPE_TO_BADGE[ProjectType.StaticLibrary] = "ST";
+
 @Component({
   selector: 'solution',
   templateUrl: './solution.component.html',
@@ -17,9 +23,11 @@ export class SolutionComponent implements OnInit {
 
   projects : Project[];
   selectedProject: Project;
+  projectTypeBadges: Array<string>;
 
   ngOnInit(): void {
     this.getProjects();
+    this.projectTypeBadges = PROJECT_TYPE_TO_BADGE;
   }
 
   getProjects(): void {
@@ -33,22 +41,5 @@ export class SolutionComponent implements OnInit {
 
   gotoDetail(): void {
     this.router.navigate(['/detail', this.selectedProject.name]);
-  }
-
-  projectTypeToString(type: ProjectType): string {
-      switch (type) {
-        case ProjectType.Exectuable:
-          return "EX";
-
-        case ProjectType.SharedLibrary:
-          return "SH";
-
-        case ProjectType.StaticLibrary:
-          return "ST";
-      
-        default:
-          break;
-      }
-      return "Invalid Project";
   }
 }

@@ -5,6 +5,11 @@ import { ProjectService } from './project.service';
 import 'rxjs/add/operator/switchMap';
 import { Project, ProjectType, CMakeThirdPartyProject } from './models';
 
+const PROJECT_TYPE_TO_NAME: Array<string> = new Array<string>();
+PROJECT_TYPE_TO_NAME[ProjectType.Exectuable] = "Executable";
+PROJECT_TYPE_TO_NAME[ProjectType.SharedLibrary] = "Shared Library";
+PROJECT_TYPE_TO_NAME[ProjectType.StaticLibrary] = "Static Library";
+
 @Component({
     selector: 'project-detail',
     templateUrl: './project-detail.component.html',
@@ -19,11 +24,13 @@ export class ProjectDetailComponent implements OnInit {
     ) {}
 
     project: Project;
+    projectTypeToName: Array<string>;
 
     ngOnInit(): void {
       this.route.params
         .switchMap((params: Params) => this.projectService.getProject(params['name']))
         .subscribe(project => this.project = project);
+        this.projectTypeToName = PROJECT_TYPE_TO_NAME;
     }
 
     goBack(): void {
@@ -40,22 +47,5 @@ export class ProjectDetailComponent implements OnInit {
       if((<CMakeThirdPartyProject>this.project).cmakeArguments !== undefined) {
         (<CMakeThirdPartyProject>this.project).cmakeArguments.splice(index, 1);
       }
-    }
-
-    projectTypeToString(type: ProjectType): string {
-      switch (type) {
-        case ProjectType.Exectuable:
-          return "Executable";
-
-        case ProjectType.SharedLibrary:
-          return "Shared Library";
-
-        case ProjectType.StaticLibrary:
-          return "Static Library";
-      
-        default:
-          break;
-      }
-      return "Invalid Project";
     }
 }

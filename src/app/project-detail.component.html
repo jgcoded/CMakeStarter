@@ -1,6 +1,11 @@
 <div *ngIf="project">
   <h2>{{project.name}} details</h2>
-  <div><label>Project Type: </label>{{projectTypeToString(project.type)}}</div>
+  <div>
+    <label>Project Type: </label>
+    <select [(ngModel)]="project.type">
+      <option *ngFor="let type of projectTypeToName; let i=index" [value]="i">{{type}}</option>
+    </select>
+  </div>
   <div>
     <label>name: </label>
     <input [(ngModel)]="project.name" placeholder="name" />
@@ -13,7 +18,7 @@
       <button (click)="removeCMakeArgument(i)">Remove</button>
     </div>
 
-    <button [disabled]="project.cmakeArguments[project.cmakeArguments.length - 1].length == 0" (click)="addCMakeArgument()">Add Argument</button>
+    <button [disabled]="project.cmakeArguments[project.cmakeArguments.length - 1].length === 0" (click)="addCMakeArgument()">Add Argument</button>
   </div>
 
   <div *ngIf="project.configureCommand">
