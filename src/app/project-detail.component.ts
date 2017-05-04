@@ -28,7 +28,7 @@ export class ProjectDetailComponent implements OnInit {
 
     ngOnInit(): void {
       this.route.params
-        .switchMap((params: Params) => this.projectService.getProject(params['name']))
+        .switchMap((params: Params) => this.projectService.getProject(+params['id']))
         .subscribe(project => this.project = project);
         this.projectTypeToName = PROJECT_TYPE_TO_NAME;
     }

@@ -1,6 +1,6 @@
 <h3>Project Hierarchy</h3>
 <div class="grid grid-pad">
-  <a *ngFor="let project of projects" [routerLink]="['/detail', project.name]" class="col-1-4">
+  <a *ngFor="let project of projects" [routerLink]="['/detail', project.id]" class="col-1-4">
     <div class="module project">
       <h4>{{project.name}}</h4>
     </div>

@@ -1,13 +1,16 @@
 import { Project, ProjectType, CMakeThirdPartyProject, MakeThirdPartyProject, ThirdPartySource } from './models';
+import { AdjacencyList } from './graph';
 
 export const PROJECTS: Project[] = [
-    { name: "amcs", type: ProjectType.StaticLibrary },
-    { name: "amcs-tool", type: ProjectType.Exectuable },
-    { name: "amcs-client", type: ProjectType.Exectuable }
+    { id: 0, name: "solver", type: ProjectType.StaticLibrary },
+    { id: 1, name: "tool", type: ProjectType.Exectuable },
+    { id: 2, name: "client", type: ProjectType.Exectuable },
+    { id: 3, name: "tests", type: ProjectType.Exectuable }
 ];
 
 export const MAKE_PROJECTS: MakeThirdPartyProject[] = [
     {
+      id: 4,
       name: "mongoc",
       type: ProjectType.SharedLibrary,
       sourceType: ThirdPartySource.File,
@@ -25,7 +28,8 @@ export const MAKE_PROJECTS: MakeThirdPartyProject[] = [
 ];
 
 export const CMAKE_PROJECTS: CMakeThirdPartyProject[] = [
-    { 
+    {
+      id: 5,
       name: "gtest",
       type: ProjectType.StaticLibrary,
       sourceType: ThirdPartySource.File,
@@ -36,3 +40,18 @@ export const CMAKE_PROJECTS: CMakeThirdPartyProject[] = [
       ]
     }
 ];
+
+export const DEPENDENCY_GRAPH: AdjacencyList = new Map<number, Array<number>>([
+// 0 = solver has no dependencies
+[0, []],
+// 1 = tool depends solver
+[1, [0]],
+// 2 = client depends on solver and mongoc
+[2, [0, 4]],
+// 3 = tests depend on solver and gtest
+[3, [0, 5]],
+// 4 = mongoc depends on bsonc, but that comes bundled
+[4, []],
+// 5 = gtest
+[5, []]
+]);

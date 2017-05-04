@@ -40,6 +40,6 @@ export class SolutionComponent implements OnInit {
   }
 
   gotoDetail(): void {
-    this.router.navigate(['/detail', this.selectedProject.name]);
+    this.router.navigate(['/detail', this.selectedProject.id]);
   }
 }

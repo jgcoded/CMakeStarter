@@ -6,6 +6,7 @@ export enum ProjectType {
 }
 
 export interface Project {
+    id: number;
     name: string;
     type: ProjectType;
 }

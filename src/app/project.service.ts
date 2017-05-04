@@ -1,15 +1,27 @@
 import { Injectable } from '@angular/core';
 import { Project } from './models';
-import { PROJECTS, MAKE_PROJECTS, CMAKE_PROJECTS } from './mock-projects';
+import { PROJECTS, MAKE_PROJECTS, CMAKE_PROJECTS, DEPENDENCY_GRAPH } from './mock-projects';
+import { AdjacencyList } from './graph';
 
 @Injectable()
 export class ProjectService {
-  getProjects() : Promise<Project[]> {
+
+  uniqueId: number = 100;
+  // Use this function when creating a new project
+  private getUniqueId(): number {
+    return this.uniqueId++;
+  }
+
+  getProjects() : Promise<Array<Project>> {
     return Promise.resolve(PROJECTS.concat(MAKE_PROJECTS).concat(CMAKE_PROJECTS));
   }
 
-  getProject(name: string): Promise<Project> {
+  getProject(id: number): Promise<Project> {
     return this.getProjects()
-      .then(projects => projects.find(project => project.name === name));
+      .then(projects => projects.find(project => project.id === id));
+  }
+
+  getDependencies(id: number) : Promise<Array<number>> {
+    return Promise.resolve(DEPENDENCY_GRAPH[id]);
   }
 }

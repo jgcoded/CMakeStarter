@@ -1,20 +1,18 @@
 
-export type AdjacencyList = Array<Array<number>>;
+export type AdjacencyList = Map<number, Array<number>>;
 
 // Kahn's topological sort algorithm
 function topologicalSort(graph : AdjacencyList) : Array<number> {
     let result : Array<number>;
 
     // counted graph is a tuple [# of incoming edges, children nodes]
-    let countedGraph : Array<[number, Array<number>]>;
-    countedGraph.fill([0, Array<number>()], 0, graph.length);
+    let countedGraph = new Map<number, [number, Array<number>]>();
 
     graph.forEach(list => {
         list.forEach(node => {
             countedGraph[node][0] += 1;
         });
     });
-
 
     let queue : Array<number>;
     countedGraph.forEach(
@@ -30,7 +28,7 @@ function topologicalSort(graph : AdjacencyList) : Array<number> {
         let node : number = queue.pop();
         result.push(node);
         
-        countedGraph[node][1].forEach(otherNode => {
+        countedGraph[node][1].forEach((otherNode: number) => {
             countedGraph[otherNode][0] -= 1; // if subtracting 1 causes the result to be < 0 then there's a cycle
             if(countedGraph[otherNode][0] == 0) {
                 queue.push(otherNode);
