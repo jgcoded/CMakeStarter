@@ -24,4 +24,12 @@ export class ProjectService {
   getDependencies(id: number) : Promise<Array<Project>> {
     return Promise.resolve(DEPENDENCY_GRAPH.get(id)).then(depIds => Promise.all(depIds.map(depId => this.getProject(depId))));
   }
+
+  getDependencyIds(id: number): Promise<Array<number>> {
+    return Promise.resolve(DEPENDENCY_GRAPH.get(id));
+  }
+
+  addDependenciesToProject(id: number, dependencies: Array<number>): Promise<void> {
+    return Promise.resolve(DEPENDENCY_GRAPH.set(id, DEPENDENCY_GRAPH.get(id).concat(dependencies))).then(() => Promise.resolve());
+  }
 }

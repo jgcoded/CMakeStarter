@@ -15,13 +15,30 @@ PROJECT_TYPE_TO_BADGE[ProjectType.StaticLibrary] = "ST";
 export class ProjectListComponent {
   
   @Input() projects: Array<Project>;
+  @Input() multiselect: boolean = false;
   @Output() selectRequest = new EventEmitter<Project>();
+  @Output() multiSelectRequest = new EventEmitter<Array<number>>();
 
-  selectedProject: Project;
   projectTypeBadges: Array<string> = PROJECT_TYPE_TO_BADGE;
 
+  selectedProjects = new Set<number>();
+
   onSelect(project: Project): void {
-    this.selectedProject = project;
     this.selectRequest.emit(project);
+    if(this.multiselect) {
+
+      // toggle set membership
+      if(this.selectedProjects.has(project.id)) {
+        this.selectedProjects.delete(project.id);
+      } else {
+        this.selectedProjects.add(project.id);
+      }
+      
+      this.multiSelectRequest.emit(Array.from(this.selectedProjects));
+
+    } else {
+      this.selectedProjects.clear();
+      this.selectedProjects.add(project.id);
+    }
   }
 }

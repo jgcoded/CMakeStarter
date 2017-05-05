@@ -46,6 +46,11 @@
     <label>Dependencies</label>
 
     <project-list [projects]="projectDependencies" (selectRequest)="gotoDependency($event)"></project-list>
+    <div *ngIf="projectDependencies.length === 0">
+      No Dependencies
+    </div>
+
+    <button (click)="gotoAddDependencies()">Add Dependencies</button>
   </div>
 
   <button (click)="goBack()">Back</button>

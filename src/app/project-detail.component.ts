@@ -54,7 +54,11 @@ export class ProjectDetailComponent implements OnInit {
       }
     }
 
-    gotoDependency(project: Project): void {
-      this.router.navigate(['/detail', project.id]);
+    gotoDependency(dependency: Project): void {
+      this.router.navigate(['/detail', dependency.id]);
+    }
+
+    gotoAddDependencies(): void {
+      this.router.navigate(['/add-dependencies', this.project.id]);
     }
 }

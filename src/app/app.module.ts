@@ -10,6 +10,7 @@ import { ProjectService } from './project.service';
 import { DashboardComponent } from './dashboard.component';
 import { ProjectListComponent } from './project-list.component';
 import { AppRoutingModule } from './app-routing.module';
+import { AddDependenciesComponent } from './add-dependencies.component';
 
 @NgModule({
   imports: [
@@ -22,7 +23,8 @@ import { AppRoutingModule } from './app-routing.module';
     SolutionComponent,
     ProjectDetailComponent,
     DashboardComponent,
-    ProjectListComponent
+    ProjectListComponent,
+    AddDependenciesComponent
   ],
   bootstrap:    [ AppComponent ],
   providers: [ ProjectService ]

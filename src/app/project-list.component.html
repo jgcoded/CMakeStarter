@@ -1,6 +1,6 @@
 <ul class="projects">
   <li *ngFor="let project of projects"
-      [class.selected]="project === selectedProject"
+      [class.selected]="selectedProjects.has(project.id)"
       (click)="onSelect(project)">
         <span class="badge">{{projectTypeBadges[project.type]}}</span>
       {{project.name}}
