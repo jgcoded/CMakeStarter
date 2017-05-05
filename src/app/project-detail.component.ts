@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
 import { ProjectService } from './project.service';
 import 'rxjs/add/operator/switchMap';
@@ -20,11 +20,12 @@ export class ProjectDetailComponent implements OnInit {
     constructor(
       private projectService: ProjectService,
       private route: ActivatedRoute,
+      private router: Router,
       private location: Location
     ) {}
 
     project: Project;
-    projectTypeToName: Array<string>;
+    projectTypeToName: Array<string> = PROJECT_TYPE_TO_NAME;
     projectDependencies: Array<Project>;
 
     ngOnInit(): void {
@@ -35,8 +36,6 @@ export class ProjectDetailComponent implements OnInit {
       this.route.params
         .switchMap((params: Params) => this.projectService.getDependencies(+params['id']))
         .subscribe(dependencies => this.projectDependencies = dependencies);
-
-      this.projectTypeToName = PROJECT_TYPE_TO_NAME;
     }
 
     goBack(): void {
@@ -53,5 +52,9 @@ export class ProjectDetailComponent implements OnInit {
       if((<CMakeThirdPartyProject>this.project).cmakeArguments !== undefined) {
         (<CMakeThirdPartyProject>this.project).cmakeArguments.splice(index, 1);
       }
+    }
+
+    gotoDependency(project: Project): void {
+      this.router.navigate(['/detail', project.id]);
     }
 }

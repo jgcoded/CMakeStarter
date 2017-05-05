@@ -44,12 +44,8 @@
 
   <div>
     <label>Dependencies</label>
-    <ul>
-      <li *ngFor="let dependency of projectDependencies">
-        <a [routerLink]="['/detail', dependency.id]">{{dependency.name}}</a>
-      </li>
-    </ul>
 
+    <project-list [projects]="projectDependencies" (selectRequest)="gotoDependency($event)"></project-list>
   </div>
 
   <button (click)="goBack()">Back</button>

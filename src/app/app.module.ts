@@ -8,7 +8,7 @@ import { ProjectDetailComponent } from './project-detail.component';
 import { SolutionComponent } from './solution.component';
 import { ProjectService } from './project.service';
 import { DashboardComponent } from './dashboard.component';
-
+import { ProjectListComponent } from './project-list.component';
 import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
@@ -21,7 +21,8 @@ import { AppRoutingModule } from './app-routing.module';
     AppComponent,
     SolutionComponent,
     ProjectDetailComponent,
-    DashboardComponent
+    DashboardComponent,
+    ProjectListComponent
   ],
   bootstrap:    [ AppComponent ],
   providers: [ ProjectService ]

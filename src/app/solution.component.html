@@ -1,13 +1,6 @@
 <h2>All Projects</h2>
 
-<ul class="projects">
-  <li *ngFor="let project of projects"
-      [class.selected]="project === selectedProject"
-      (click)="onSelect(project)">
-        <span class="badge">{{projectTypeBadges[project.type]}}</span>
-      {{project.name}}
-  </li>
-</ul>
+<project-list [projects]="projects" (selectRequest)="onSelect($event)"></project-list>
 
 <div *ngIf="selectedProject">
   <h2>
@@ -15,3 +8,4 @@
   </h2>
   <button (click)="gotoDetail()">View Detail</button>
 </div>
+
