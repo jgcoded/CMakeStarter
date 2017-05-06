@@ -1,8 +1,16 @@
-<h3>Project Hierarchy</h3>
-<div class="grid grid-pad">
-  <a *ngFor="let project of projects" [routerLink]="['/detail', project.id]" class="col-1-4">
-    <div class="module project">
-      <h4>{{project.name}}</h4>
-    </div>
-  </a>
+<h3>Folder Structure</h3>
+
+<div class="node">
+  <ul>
+    <tree-view class="node" [tree]="tree" [onNodeSelected]="onNodeSelectedEvent"></tree-view>
+  </ul>
+</div>
+<div class="preview">
+  Select a CMake file on the left to view its preview here
+  <h4>{{previewTitle}}</h4>
+  <pre>
+  <code>
+  {{preview}}
+  </code>
+  </pre>
 </div>

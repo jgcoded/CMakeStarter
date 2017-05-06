@@ -9,6 +9,7 @@ import { SolutionComponent } from './solution.component';
 import { ProjectService } from './project.service';
 import { DashboardComponent } from './dashboard.component';
 import { ProjectListComponent } from './project-list.component';
+import { TreeViewComponent } from './tree-view.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AddDependenciesComponent } from './add-dependencies.component';
 
@@ -24,7 +25,8 @@ import { AddDependenciesComponent } from './add-dependencies.component';
     ProjectDetailComponent,
     DashboardComponent,
     ProjectListComponent,
-    AddDependenciesComponent
+    AddDependenciesComponent,
+    TreeViewComponent
   ],
   bootstrap:    [ AppComponent ],
   providers: [ ProjectService ]
