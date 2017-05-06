@@ -4,5 +4,7 @@
       (click)="onSelect(project)">
         <span class="badge">{{projectTypeBadges[project.type]}}</span>
       {{project.name}}
+
+      <button *ngIf="deletable" (click)="onDelete(project); $event.stopPropagation()" class="delete">X</button>
   </li>
 </ul>

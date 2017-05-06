@@ -16,8 +16,10 @@ export class ProjectListComponent {
   
   @Input() projects: Array<Project>;
   @Input() multiselect: boolean = false;
+  @Input() deletable: boolean = false;
   @Output() selectRequest = new EventEmitter<Project>();
   @Output() multiSelectRequest = new EventEmitter<Array<number>>();
+  @Output() deleteRequest = new EventEmitter<Project>();
 
   projectTypeBadges: Array<string> = PROJECT_TYPE_TO_BADGE;
 
@@ -39,6 +41,12 @@ export class ProjectListComponent {
     } else {
       this.selectedProjects.clear();
       this.selectedProjects.add(project.id);
+    }
+  }
+
+  onDelete(project: Project): void {
+    if(this.deletable) {
+      this.deleteRequest.emit(project)
     }
   }
 }

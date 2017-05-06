@@ -45,7 +45,7 @@
   <div>
     <label>Dependencies</label>
 
-    <project-list [projects]="projectDependencies" (selectRequest)="gotoDependency($event)"></project-list>
+    <project-list [projects]="projectDependencies" (deleteRequest)="onDeleteDependency($event)" deletable="true" (selectRequest)="gotoDependency($event)"></project-list>
     <div *ngIf="projectDependencies.length === 0">
       No Dependencies
     </div>

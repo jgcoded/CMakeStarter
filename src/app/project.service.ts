@@ -32,4 +32,9 @@ export class ProjectService {
   addDependenciesToProject(id: number, dependencies: Array<number>): Promise<void> {
     return Promise.resolve(DEPENDENCY_GRAPH.set(id, DEPENDENCY_GRAPH.get(id).concat(dependencies))).then(() => Promise.resolve());
   }
+
+  removeDependency(id: number, dependencyId: number): Promise<void> {
+    return Promise.resolve(DEPENDENCY_GRAPH.set(id, DEPENDENCY_GRAPH.get(id).filter(projectId => projectId !== dependencyId)))
+      .then(() => {});
+  }
 }

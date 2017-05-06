@@ -61,4 +61,10 @@ export class ProjectDetailComponent implements OnInit {
     gotoAddDependencies(): void {
       this.router.navigate(['/add-dependencies', this.project.id]);
     }
+
+    onDeleteDependency(project: Project): void {
+      this.projectService.removeDependency(this.project.id, project.id)
+        .then(() => this.projectService.getDependencies(this.project.id))
+        .then(dependencies => this.projectDependencies = dependencies);
+    }
 }
