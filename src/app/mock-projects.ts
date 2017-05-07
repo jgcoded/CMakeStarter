@@ -1,6 +1,8 @@
 import { Project, ProjectType, CMakeThirdPartyProject, MakeThirdPartyProject, ThirdPartySource } from './models';
 import { AdjacencyList } from './graph';
 
+export const SOLUTION_NAME: string = "MyProject";
+
 export const PROJECTS: Project[] = [
     { id: 0, name: "solver", type: ProjectType.StaticLibrary },
     { id: 1, name: "tool", type: ProjectType.Exectuable },

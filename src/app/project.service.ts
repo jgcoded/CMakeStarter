@@ -1,7 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Project } from './models';
-import { PROJECTS, MAKE_PROJECTS, CMAKE_PROJECTS, DEPENDENCY_GRAPH } from './mock-projects';
+import { SOLUTION_NAME, PROJECTS, MAKE_PROJECTS, CMAKE_PROJECTS, DEPENDENCY_GRAPH } from './mock-projects';
 import { AdjacencyList } from './graph';
+
+import { 
+  GenerateRootCMakeListsTxt,
+  GenerateSubprojectCMakeListsTxt,
+  GenerateSrcDirectoryCMakeListsTxt,
+  GenerateThirdPartyCMakeFile
+ } from './gen';
 
 @Injectable()
 export class ProjectService {
@@ -10,6 +17,10 @@ export class ProjectService {
   // Use this function when creating a new project
   private getUniqueId(): number {
     return this.uniqueId++;
+  }
+
+  getSolutionName(): Promise<string> {
+    return Promise.resolve(SOLUTION_NAME);
   }
 
   getProjects() : Promise<Array<Project>> {
@@ -33,6 +44,22 @@ export class ProjectService {
     return Promise.resolve(DEPENDENCY_GRAPH.get(id));
   }
 
+  generateRootCMakeFile(): Promise<string> {
+    return Promise.resolve(GenerateRootCMakeListsTxt(SOLUTION_NAME));
+  }
+
+  generateSrcCMakeFile(): Promise<string> {
+    return Promise.resolve(GenerateSrcDirectoryCMakeListsTxt(PROJECTS));
+  }
+
+  generateThirdPartyCMakeFile(): Promise<string> {
+    return Promise.resolve(GenerateThirdPartyCMakeFile([], new Map()));
+  }
+
+  generateUserProjectCMake(project: Project): Promise<string> {
+    return Promise.resolve(GenerateSubprojectCMakeListsTxt(project, [], []));
+  }
+
   addDependenciesToProject(id: number, dependencies: Array<number>): Promise<void> {
     return Promise.resolve(DEPENDENCY_GRAPH.set(id, DEPENDENCY_GRAPH.get(id).concat(dependencies))).then(() => Promise.resolve());
   }
@@ -41,4 +68,5 @@ export class ProjectService {
     return Promise.resolve(DEPENDENCY_GRAPH.set(id, DEPENDENCY_GRAPH.get(id).filter(projectId => projectId !== dependencyId)))
       .then(() => {});
   }
+
 }
