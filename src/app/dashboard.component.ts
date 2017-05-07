@@ -2,7 +2,12 @@ import { Component, OnInit, EventEmitter } from '@angular/core';
 import { Project } from './models';
 import { ProjectService } from './project.service';
 import { Tree } from './tree-view.component';
-import { GenerateSubprojectCMakeListsTxt } from './gen';
+import { 
+  GenerateRootCMakeListsTxt,
+  GenerateSubprojectCMakeListsTxt,
+  GenerateSrcDirectoryCMakeListsTxt,
+  GenerateThirdPartyCMakeFile
+ } from './gen';
 
 @Component({
   selector: 'dashboard',
@@ -18,6 +23,10 @@ export class DashboardComponent implements OnInit {
   preview: string;
   userProjects: Project[];
 
+  readonly THIRDPARTY_CMAKE_NODE_ID: number = -1;
+  readonly ROOT_CMAKE_NODE_ID: number = -2;
+  readonly SRC_CMAKE_NODE_ID: number = -3;
+
   tree: Tree = {
     value: "Project Root/",
     children: [
@@ -25,6 +34,7 @@ export class DashboardComponent implements OnInit {
         value: "cmake/",
         children: [
           {
+            id: this.THIRDPARTY_CMAKE_NODE_ID,
             value: "3rdParty.cmake",
             children: []
           }
@@ -34,17 +44,15 @@ export class DashboardComponent implements OnInit {
         value: "src/",
         children: [
           {
+            id: this.SRC_CMAKE_NODE_ID,
             value: "CMakeLists.txt",
             children: []
           }
         ]
       },
       {
+        id: this.ROOT_CMAKE_NODE_ID,
         value: "CMakeLists.txt",
-        children: []
-      },
-      {
-        value: ".gitignore",
         children: []
       }
     ]
@@ -79,11 +87,33 @@ export class DashboardComponent implements OnInit {
   }
 
   onNodeSelected(node: Tree) {
-    let foundProject : Project = this.userProjects.find(project => project.id === node.id);
-    if(foundProject) {
-      this.previewTitle = `CMakeLists.txt for ${foundProject.name}`;
-      this.preview = GenerateSubprojectCMakeListsTxt(foundProject, [], []);
+
+    switch (node.id) {
+      case this.ROOT_CMAKE_NODE_ID:
+        this.previewTitle = "Root directory CMake file";
+        this.preview = GenerateRootCMakeListsTxt("SOLUTION NAME");
+        break;
+
+      case this.SRC_CMAKE_NODE_ID:
+        this.previewTitle = "src/ directory CMakeLists.txt";
+        this.preview = GenerateSrcDirectoryCMakeListsTxt(this.userProjects);
+        break;
+
+      case this.THIRDPARTY_CMAKE_NODE_ID:
+        this.previewTitle = "Third party cmake file"
+        this.preview = GenerateThirdPartyCMakeFile([], new Map());
+        break;
+
+      default:
+        let foundProject : Project = this.userProjects.find(project => project.id === node.id);
+        if(foundProject) {
+          this.previewTitle = `CMakeLists.txt for ${foundProject.name}`;
+          this.preview = GenerateSubprojectCMakeListsTxt(foundProject, [], []);
+        }
+        break;
     }
+
+
   }
 
 }
