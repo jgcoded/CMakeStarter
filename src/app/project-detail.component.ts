@@ -3,7 +3,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
 import { ProjectService } from './project.service';
 import 'rxjs/add/operator/switchMap';
-import { Project, ProjectType, CMakeThirdPartyProject, PROJECT_TYPE_TO_NAME } from './models';
+import { Project, ProjectType, CMakeThirdPartyProject, PROJECT_TYPE_TO_NAME, SOURCE_TYPE_TO_NAME } from './models';
 
 @Component({
     selector: 'project-detail',
@@ -21,6 +21,7 @@ export class ProjectDetailComponent implements OnInit {
 
     project: Project;
     readonly projectTypeToName: Array<string> = PROJECT_TYPE_TO_NAME;
+    readonly sourceTypeToName: Array<string> = SOURCE_TYPE_TO_NAME;
     projectDependencies: Array<Project>;
 
     ngOnInit(): void {
@@ -40,6 +41,7 @@ export class ProjectDetailComponent implements OnInit {
     addCMakeArgument(): void {
       if((<CMakeThirdPartyProject>this.project).cmakeArguments !== undefined) {
         (<CMakeThirdPartyProject>this.project).cmakeArguments.push('');
+        console.log((<CMakeThirdPartyProject>this.project).sourceType);
       }
     }
 

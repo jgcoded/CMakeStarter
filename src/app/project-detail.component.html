@@ -14,6 +14,18 @@
     <input [(ngModel)]="project.name" placeholder="MyAwesomeProject" />
   </div>
 
+  <div *ngIf="project.sourceType">
+    <label>Where can CMake find this project?</label>
+    <select [(ngModel)]="project.sourceType">
+      <option *ngFor="let type of sourceTypeToName; let i=index" [value]="i">{{type}}</option>
+    </select>
+  </div>
+
+  <div *ngIf="project.location">
+    <label>Dependency Location/Name: </label>
+    <input [(ngModel)]="project.location" placeholder="http://some.place" />
+  </div>
+
   <div *ngIf="project.cmakeArguments">
     <label>CMake Arguments</label>
     <div *ngFor="let arg of project.cmakeArguments; let i=index">

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { ProjectService } from './project.service';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
-import { ProjectType, ThirdPartySource, PROJECT_TYPE_TO_NAME } from './models';
+import { ProjectType, ThirdPartySource, PROJECT_TYPE_TO_NAME, SOURCE_TYPE_TO_NAME } from './models';
 
 @Component({
   selector: 'add-project',
