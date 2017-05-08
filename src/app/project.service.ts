@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Project, ThirdPartyProject, CMakeThirdPartyProject, MakeThirdPartyProject } from './models';
+import { Project, ProjectType, ThirdPartyProject, CMakeThirdPartyProject, MakeThirdPartyProject } from './models';
 import { SOLUTION_NAME, PROJECTS, MAKE_PROJECTS, CMAKE_PROJECTS, DEPENDENCY_GRAPH } from './mock-projects';
 import { AdjacencyList, topologicalSort } from './graph';
 
@@ -42,6 +42,26 @@ export class ProjectService {
 
   getDependencyIds(id: number): Promise<Array<number>> {
     return Promise.resolve(DEPENDENCY_GRAPH.get(id));
+  }
+
+  getCandidateDependencies(id: number): Promise<Array<Project>> {
+
+    return this.getProject(id).then(
+      project => (<ThirdPartyProject>project).location !== undefined
+    )
+    .then(isThirdParty => {
+
+      return this.getDependencyIds(id).then((ids: Array<number>) => {
+
+        let projects: Array<Project> = (<Array<Project>>MAKE_PROJECTS).concat(CMAKE_PROJECTS);
+
+        if(!isThirdParty) {
+          projects = projects.concat(PROJECTS);
+        }
+
+        return projects.filter((project: Project) => project.type !== ProjectType.Exectuable && project.id !== id && ids.findIndex(depId => project.id === depId) === -1);
+      });
+    });
   }
 
   generateRootCMakeFile(): Promise<string> {

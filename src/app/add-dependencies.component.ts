@@ -35,14 +35,11 @@ export class AddDependenciesComponent implements OnInit {
 
   ngOnInit(): void {
     let projectId: number = -1;
-    this.route.params.switchMap((param: Params) => { projectId = +param['id']; return this.projectService.getDependencyIds(projectId); })
-      .switchMap((ids: Array<number>) => this.projectService.getProjects()
-          .then((projects: Array<Project>) => projects
-            .filter(project =>project.type !== ProjectType.Exectuable && project.id !== projectId && ids.indexOf(project.id) === -1)))
-      .subscribe(filteredProjects => this.candidateDependencies = filteredProjects);
+    this.route.params.switchMap((param: Params) => this.projectService.getCandidateDependencies(+param['id']))
+      .subscribe(candidates => this.candidateDependencies = candidates);
 
-      this.route.params.switchMap((param: Params) => this.projectService.getProject(+param['id']))
-        .subscribe((project: Project) => this.project = project);
+    this.route.params.switchMap((param: Params) => this.projectService.getProject(+param['id']))
+      .subscribe((project: Project) => this.project = project);
   }
 
   onMultiSelect(selected: Array<number>): void {
