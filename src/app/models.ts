@@ -4,6 +4,11 @@ export enum ProjectType {
     SharedLibrary,
     StaticLibrary
 }
+export const PROJECT_TYPE_TO_NAME: Array<string> = new Array<string>();
+PROJECT_TYPE_TO_NAME[ProjectType.Exectuable] = "Executable";
+PROJECT_TYPE_TO_NAME[ProjectType.SharedLibrary] = "Shared Library";
+PROJECT_TYPE_TO_NAME[ProjectType.StaticLibrary] = "Static Library";
+
 
 export interface Project {
     id: number;

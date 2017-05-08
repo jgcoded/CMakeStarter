@@ -3,12 +3,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
 import { ProjectService } from './project.service';
 import 'rxjs/add/operator/switchMap';
-import { Project, ProjectType, CMakeThirdPartyProject } from './models';
-
-const PROJECT_TYPE_TO_NAME: Array<string> = new Array<string>();
-PROJECT_TYPE_TO_NAME[ProjectType.Exectuable] = "Executable";
-PROJECT_TYPE_TO_NAME[ProjectType.SharedLibrary] = "Shared Library";
-PROJECT_TYPE_TO_NAME[ProjectType.StaticLibrary] = "Static Library";
+import { Project, ProjectType, CMakeThirdPartyProject, PROJECT_TYPE_TO_NAME } from './models';
 
 @Component({
     selector: 'project-detail',
@@ -25,7 +20,7 @@ export class ProjectDetailComponent implements OnInit {
     ) {}
 
     project: Project;
-    projectTypeToName: Array<string> = PROJECT_TYPE_TO_NAME;
+    readonly projectTypeToName: Array<string> = PROJECT_TYPE_TO_NAME;
     projectDependencies: Array<Project>;
 
     ngOnInit(): void {

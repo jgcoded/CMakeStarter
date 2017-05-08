@@ -12,7 +12,7 @@ import { ProjectListComponent } from './project-list.component';
 import { TreeViewComponent } from './tree-view.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AddDependenciesComponent } from './add-dependencies.component';
-
+import { AddProjectComponent } from './add-project.component';
 @NgModule({
   imports: [
     BrowserModule,
@@ -26,7 +26,8 @@ import { AddDependenciesComponent } from './add-dependencies.component';
     DashboardComponent,
     ProjectListComponent,
     AddDependenciesComponent,
-    TreeViewComponent
+    TreeViewComponent,
+    AddProjectComponent
   ],
   bootstrap:    [ AppComponent ],
   providers: [ ProjectService ]
