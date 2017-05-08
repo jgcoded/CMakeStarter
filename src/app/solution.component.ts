@@ -41,6 +41,11 @@ export class SolutionComponent implements OnInit {
   onDeleteProject(project: Project): void {
     this.projectService.deleteProject(project.id)
       .then(() => this.projectService.getProjects())
-      .then(projects => this.projects = projects);
+      .then(projects => {
+        this.projects = projects;
+        if(this.selectedProject.id === project.id) {
+          this.selectedProject = null;
+        }
+      });
   }
 }
