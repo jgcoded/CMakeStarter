@@ -33,4 +33,10 @@ export class SolutionComponent implements OnInit {
   gotoDetail(): void {
     this.router.navigate(['/detail', this.selectedProject.id]);
   }
+
+  onDeleteProject(project: Project): void {
+    this.projectService.deleteProject(project.id)
+      .then(() => this.projectService.getProjects())
+      .then(projects => this.projects = projects);
+  }
 }

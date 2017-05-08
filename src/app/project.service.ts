@@ -145,4 +145,35 @@ export class ProjectService {
       .then(() => {});
   }
 
+  deleteProject(id: number): Promise<void> {
+    return Promise.resolve(DEPENDENCY_GRAPH.delete(id))
+      .then(() => {
+
+        DEPENDENCY_GRAPH.forEach(list => {
+          let foundIndex: number = list.findIndex(depId => depId === id);
+          if(foundIndex > -1) {
+            list.splice(foundIndex, 1);
+          }
+        });
+
+      }).then(() => {
+        let foundIndex: number = -1;
+
+        foundIndex = PROJECTS.findIndex(project => project.id === id);
+        if(foundIndex > -1) {
+          PROJECTS.splice(foundIndex, 1);
+        }
+
+        foundIndex = MAKE_PROJECTS.findIndex(project => project.id === id);
+        if(foundIndex > -1) {
+          MAKE_PROJECTS.splice(foundIndex, 1);
+        }
+
+        foundIndex = CMAKE_PROJECTS.findIndex(project => project.id === id);
+        if(foundIndex > -1) {
+          CMAKE_PROJECTS.splice(foundIndex, 1);
+        }
+      });
+  }
+
 }

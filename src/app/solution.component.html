@@ -1,6 +1,6 @@
 <h2>All Projects</h2>
 
-<project-list [projects]="projects" (selectRequest)="onSelect($event)"></project-list>
+<project-list [projects]="projects" (selectRequest)="onSelect($event)" (deleteRequest)="onDeleteProject($event)" deletable="true"></project-list>
 
 <div *ngIf="selectedProject">
   <h2>
