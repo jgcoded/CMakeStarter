@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Project, ThirdPartyProject } from './models';
+import { Project, ThirdPartyProject, CMakeThirdPartyProject, MakeThirdPartyProject } from './models';
 import { SOLUTION_NAME, PROJECTS, MAKE_PROJECTS, CMAKE_PROJECTS, DEPENDENCY_GRAPH } from './mock-projects';
 import { AdjacencyList, topologicalSort } from './graph';
 
@@ -15,8 +15,8 @@ export class ProjectService {
 
   uniqueId: number = 100;
   // Use this function when creating a new project
-  private getUniqueId(): number {
-    return this.uniqueId++;
+  private getUniqueId(): Promise<number> {
+    return Promise.resolve(this.uniqueId++);
   }
 
   getSolutionName(): Promise<string> {
@@ -134,6 +134,36 @@ export class ProjectService {
       });
       return GenerateSubprojectCMakeListsTxt(project, subprojects, thirdParty);
     });
+  }
+
+  addProject(project: Project): Promise<number> {
+    return this.getUniqueId()
+      .then(id => {
+        project.id = id;
+        PROJECTS.push(project);
+        DEPENDENCY_GRAPH.set(id, []);
+        return id;
+      });
+  }
+
+  addCMakeThirdPartyProject(project: CMakeThirdPartyProject): Promise<number> {
+    return this.getUniqueId()
+      .then(id => {
+        project.id = id;
+        CMAKE_PROJECTS.push(project);
+        DEPENDENCY_GRAPH.set(id, []);
+        return id;
+      })
+  }
+
+  addMakeThirdPartyProject(project: MakeThirdPartyProject): Promise<number> {
+    return this.getUniqueId()
+      .then(id => {
+        project.id = id;
+        MAKE_PROJECTS.push(project);
+        DEPENDENCY_GRAPH.set(id, []);
+        return id;
+      });
   }
 
   addDependenciesToProject(id: number, dependencies: Array<number>): Promise<void> {
