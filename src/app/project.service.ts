@@ -72,7 +72,11 @@ export class ProjectService {
     });
 
     // sort
-    let sortedProjectIds = topologicalSort(subgraph).reverse();
+    let sortedProjectIds = topologicalSort(subgraph);
+    if(sortedProjectIds === null) {
+      return Promise.reject("Could not topologically sort the dependency graph");
+    }
+    sortedProjectIds = sortedProjectIds.reverse();
 
     return Promise.resolve(
       Promise.all(sortedProjectIds.map(id => this.getProject(id))).then(
@@ -95,7 +99,12 @@ export class ProjectService {
     });
 
 
-    let sortedThirdParty = topologicalSort(subgraph).reverse();
+    let sortedThirdParty = topologicalSort(subgraph);
+    if(sortedThirdParty === null) {
+      return Promise.reject("Could not topologically sort the dependency graph");
+    }
+    sortedThirdParty = sortedThirdParty.reverse();
+
     let thirdPartyNames = new Map<number, Array<string>>();
     thirdParty.forEach(project => {
       let deps = DEPENDENCY_GRAPH.get(project.id);

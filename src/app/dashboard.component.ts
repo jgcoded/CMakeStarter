@@ -82,29 +82,25 @@ export class DashboardComponent implements OnInit {
 
   onNodeSelected(node: Tree) {
 
+    let promise: Promise<string> = null;
+
     switch (node.id) {
 
       case this.ROOT_CMAKE_NODE_ID:
 
         this.previewTitle = "Root directory CMake file";
-        this.projectService.generateRootCMakeFile().then(
-          value => this.preview = value
-        );
+        promise = this.projectService.generateRootCMakeFile();
 
         break;
 
       case this.SRC_CMAKE_NODE_ID:
         this.previewTitle = "src/ directory CMakeLists.txt";
-        this.projectService.generateSrcCMakeFile().then(
-          value => this.preview = value
-        );
+        promise = this.projectService.generateSrcCMakeFile();
         break;
 
       case this.THIRDPARTY_CMAKE_NODE_ID:
         this.previewTitle = "Third party CMake file";
-        this.projectService.generateThirdPartyCMakeFile().then(
-          value => this.preview = value
-        );
+        promise = this.projectService.generateThirdPartyCMakeFile();
         break;
 
       default:
@@ -115,13 +111,15 @@ export class DashboardComponent implements OnInit {
         let foundProject : Project = this.userProjects.find(project => project.id === node.id);
         if(foundProject) {
           this.previewTitle = `CMakeLists.txt for ${foundProject.name}`;
-          this.projectService.generateUserProjectCMake(foundProject).then(
-            value => this.preview = value
-          );
+          promise = this.projectService.generateUserProjectCMake(foundProject);
         }
         break;
     }
 
+    if(promise) {
+      promise.then(value => this.preview = value)
+        .catch(reason => this.preview = `Error: Could not generate this file: ${reason}`);
+    }
 
   }
 
