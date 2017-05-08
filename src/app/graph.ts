@@ -2,43 +2,51 @@
 export type AdjacencyList = Map<number, Array<number>>;
 
 // Kahn's topological sort algorithm
-function topologicalSort(graph : AdjacencyList) : Array<number> {
-    let result : Array<number>;
+export function topologicalSort(graph: AdjacencyList): Array<number> {
 
-    // counted graph is a tuple [# of incoming edges, children nodes]
-    let countedGraph = new Map<number, [number, Array<number>]>();
+  let result: Array<number> = [];
+  let incomingEdgesCount: Map<number, number> = new Map();
 
-    graph.forEach(list => {
-        list.forEach(node => {
-            countedGraph[node][0] += 1;
-        });
+  // Get a count of the incoming edges for each node
+  graph.forEach((list, id) => {
+    if (!incomingEdgesCount.has(id)) {
+      incomingEdgesCount.set(id, 0);
+    }
+    list.forEach(dep => {
+      if (!incomingEdgesCount.has(dep)) {
+        incomingEdgesCount.set(dep, 0);
+      }
+
+      incomingEdgesCount.set(dep, incomingEdgesCount.get(dep) + 1);
+    });
+  });
+
+  // Append all nodes with 0 incoming edges to a queue
+  let queue: Array<number> = [];
+  incomingEdgesCount.forEach(
+    (value: number, key: number) => {
+      if (value === 0) {
+        queue.push(key);
+      }
     });
 
-    let queue : Array<number>;
-    countedGraph.forEach(
-        function(value, index) {
-            if(value[0] === 0) {
-                queue.push(index);
-            }
-        }
-    );
+  // continuously pop and decrease node counts
+  while (queue.length > 0) {
+    let node: number = queue.pop();
+    result.push(node);
 
-    while(queue.length > 0)
-    {
-        let node : number = queue.pop();
-        result.push(node);
-        
-        countedGraph[node][1].forEach((otherNode: number) => {
-            countedGraph[otherNode][0] -= 1; // if subtracting 1 causes the result to be < 0 then there's a cycle
-            if(countedGraph[otherNode][0] == 0) {
-                queue.push(otherNode);
-            }
-        });
+    graph.get(node).forEach((otherNode: number) => {
 
-        // countedGraph.splice(node, 1); I don't think I need this call - 
-        // node already has zero incoming edges so no other edge in the
-        // countedGraph will lead to node
-    }
+      incomingEdgesCount.set(otherNode, incomingEdgesCount.get(otherNode) - 1);
 
-    return result;
+      // Note: if subtracting causes the result to be < 0 then there's a cycle
+      if (incomingEdgesCount.get(otherNode) === 0) {
+        queue.push(otherNode);
+      }
+    });
+
+    graph.delete(node);
+  }
+
+  return result;
 }

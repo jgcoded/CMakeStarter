@@ -146,8 +146,7 @@ ExternalProject_add(
         thirdParty.sourceType === ThirdPartySource.Git ? "GIT_REPOSITORY" : ""
     }
     ${thirdParty.location}
-    SOURCE_DIR \${SOURCE_DIR}
-`;
+    SOURCE_DIR \${SOURCE_DIR}`;
 }
 
 
@@ -172,8 +171,7 @@ add_dependencies(${thirdParty.name} ${thirdParty.name}Download ${dependenciesStr
 set_target_properties(${thirdParty.name} PROPERTIES
     IMPORTED_LOCATION
         \${THIRD_PARTY_INSTALL_PREFIX}/lib/lib${thirdParty.name}.${extension}
-)
-`;
+)`;
 }
 
 export function GenerateCMakeThirdPartyProjectString(
@@ -206,7 +204,7 @@ ${beginPartial}
     BUILD_COMMAND ${makeProject.buildCommand}
     INSTALL_COMMAND ${makeProject.installCommand}
 ${endPartial}
-;`
+`;
 }
 
 function IsCMakeProject(thirdParty : ThirdPartyProject) : thirdParty is CMakeThirdPartyProject {
@@ -215,13 +213,14 @@ function IsCMakeProject(thirdParty : ThirdPartyProject) : thirdParty is CMakeThi
 
 export function GenerateThirdPartyCMakeFile(
     dependencies : Array<ThirdPartyProject>,
-    dependenciesMap: Map<string, Array<string>>) : string
+    dependenciesMap: Map<number, Array<string>>) : string
 {
 
     let allDependencyStrings : string = "";
 
     dependencies.forEach(thirdParty => {
-        let thirdPartyDeps : Array<string> = dependenciesMap[thirdParty.name];
+        let thirdPartyDeps: Array<string> = dependenciesMap.get(thirdParty.id);
+
         if(IsCMakeProject(thirdParty)) {
             allDependencyStrings += GenerateCMakeThirdPartyProjectString(
                 <CMakeThirdPartyProject>thirdParty,
@@ -235,8 +234,6 @@ export function GenerateThirdPartyCMakeFile(
 
     return `
 include(ExternalProject)
-
-if(UNIX)
 
 set(THIRD_PARTY_INSTALL_PREFIX \${CMAKE_CURRENT_BINARY_DIR}
     CACHE PATH "Directory to install 3rd party dependencies"

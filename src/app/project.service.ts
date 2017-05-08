@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Project } from './models';
+import { Project, ThirdPartyProject } from './models';
 import { SOLUTION_NAME, PROJECTS, MAKE_PROJECTS, CMAKE_PROJECTS, DEPENDENCY_GRAPH } from './mock-projects';
-import { AdjacencyList } from './graph';
+import { AdjacencyList, topologicalSort } from './graph';
 
 import { 
   GenerateRootCMakeListsTxt,
@@ -49,15 +49,91 @@ export class ProjectService {
   }
 
   generateSrcCMakeFile(): Promise<string> {
-    return Promise.resolve(GenerateSrcDirectoryCMakeListsTxt(PROJECTS));
+
+    // Need to get all user projects topologically sorted so that sub project a
+    // comes before subproject b if b depends on a
+
+    let projectIds: Set<number> = new Set();
+    let subgraph: AdjacencyList = new Map();
+
+    PROJECTS.forEach(project => {
+      projectIds.add(project.id);
+    });
+
+    PROJECTS.forEach(project => {
+      let userDependencies: Array<number> = [];
+      DEPENDENCY_GRAPH.get(project.id).forEach(depId => {
+        if(projectIds.has(depId)) {
+          userDependencies.push(depId);
+        }
+      });
+
+      subgraph.set(project.id, userDependencies);
+    });
+
+    // sort
+    let sortedProjectIds = topologicalSort(subgraph).reverse();
+
+    return Promise.resolve(
+      Promise.all(sortedProjectIds.map(id => this.getProject(id))).then(
+        sortedProjects => GenerateSrcDirectoryCMakeListsTxt(sortedProjects)
+      ));
   }
 
   generateThirdPartyCMakeFile(): Promise<string> {
-    return Promise.resolve(GenerateThirdPartyCMakeFile([], new Map()));
+
+    // topo sort third party dependencies, 
+
+    // get subgraph of third party deps
+
+    let subgraph: AdjacencyList = new Map();
+    let thirdParty: Array<ThirdPartyProject> = (<Array<ThirdPartyProject>>MAKE_PROJECTS).concat(CMAKE_PROJECTS);
+
+
+    thirdParty.forEach(project => {
+      subgraph.set(project.id, DEPENDENCY_GRAPH.get(project.id));
+    });
+
+
+    let sortedThirdParty = topologicalSort(subgraph).reverse();
+    let thirdPartyNames = new Map<number, Array<string>>();
+    thirdParty.forEach(project => {
+      let deps = DEPENDENCY_GRAPH.get(project.id);
+
+      let dependencyNames: Array<string> = [];
+      
+      deps.forEach(depId => {
+
+        let found = thirdParty.find(thirdPartyProject => thirdPartyProject.id === depId);
+        dependencyNames.push(found.name);
+      })
+
+      thirdPartyNames.set(project.id, dependencyNames);
+
+    });
+
+    return Promise.resolve(
+      Promise.all(sortedThirdParty.map(depId => this.getProject(depId))))
+        .then(sortedThirdPartyProjects => GenerateThirdPartyCMakeFile(<Array<ThirdPartyProject>>sortedThirdPartyProjects, thirdPartyNames));
   }
 
   generateUserProjectCMake(project: Project): Promise<string> {
-    return Promise.resolve(GenerateSubprojectCMakeListsTxt(project, [], []));
+
+    return this.getDependencies(project.id).then(projects => {
+
+      let subprojects: Array<Project> = [];
+      let thirdParty: Array<ThirdPartyProject> = [];
+
+      projects.forEach(project => {
+        if((<ThirdPartyProject>project).sourceType === undefined) {
+          subprojects.push(project);
+        } else {
+          thirdParty.push(<ThirdPartyProject>project);
+        }
+
+      });
+      return GenerateSubprojectCMakeListsTxt(project, subprojects, thirdParty);
+    });
   }
 
   addDependenciesToProject(id: number, dependencies: Array<number>): Promise<void> {
