@@ -1,6 +1,11 @@
-<h3>Folder Structure</h3>
+
+<div>
+<label>Happy with the results?</label>
+<button (click)="generateZip()">Download the zip file!</button>
+</div>
 
 <div class="node">
+  <h4>Folder Structure</h4>
   <ul>
     <tree-view class="node" [tree]="tree" [onNodeSelected]="onNodeSelectedEvent"></tree-view>
   </ul>

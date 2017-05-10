@@ -235,4 +235,33 @@ export class ProjectService {
       });
   }
 
+  generateZipFile(): Promise<void> {
+
+    let zip: JSZip = new JSZip();
+
+    return this.generateRootCMakeFile()
+      .then(rootCmake => { 
+        zip.file("CMakeLists.txt", rootCmake);
+        return this.generateSrcCMakeFile()
+      })
+      .then(srcCmake => {
+        zip.file("src/CMakeLists.txt", srcCmake);
+        return this.generateThirdPartyCMakeFile();
+      })
+      .then(thirdPartyCmake => {
+        zip.file("cmake/3rdParty.cmake", thirdPartyCmake);
+        return this.getUserProjects();
+      })
+      .then(userProjects => {
+        return Promise.all(userProjects.map(project =>
+          this.generateUserProjectCMake(project)
+            .then(projectCmake => zip.file(`src/${project.name}/CMakeLists.txt`, projectCmake))))
+      })
+      .then(() => zip.generateAsync({ type: 'blob'}))
+      .then(content => {
+        return this.getSolutionName()
+          .then(name => saveAs(content, `${name}.zip`))
+      });
+  }
+
 }

@@ -80,6 +80,12 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  generateZip(): void {
+    this.projectService.generateZipFile()
+      .then(() => console.log('Zip file generation succeeded'))
+      .catch(reason => console.log(`Zip file generation failed: ${reason}`));
+  }
+
   onNodeSelected(node: Tree) {
 
     let promise: Promise<string> = null;
