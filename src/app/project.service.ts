@@ -7,7 +7,9 @@ import {
   GenerateRootCMakeListsTxt,
   GenerateSubprojectCMakeListsTxt,
   GenerateSrcDirectoryCMakeListsTxt,
-  GenerateThirdPartyCMakeFile
+  GenerateThirdPartyCMakeFile,
+  GenerateExecutableSourceCodeFile,
+  GenerateLibrarySourceCode
  } from './gen';
 
 @Injectable()
@@ -275,10 +277,33 @@ export class ProjectService {
         return Promise.all(userProjects.map(project =>
           this.generateUserProjectCMake(project)
             .then(projectCmake => {
+
               if(window.navigator.platform === "Win32") {
                 projectCmake = projectCmake.replace(/\n/g, '\r\n');
               }
-              zip.file(`src/${project.name}/CMakeLists.txt`, projectCmake)
+
+              let dir: string = `src/${project.name}`;
+
+              zip.file(`${dir}/CMakeLists.txt`, projectCmake)
+
+              if(project.type === ProjectType.Exectuable) {
+
+                let sourceCode: string = GenerateExecutableSourceCodeFile();
+                if(window.navigator.platform === "Win32") {
+                  sourceCode = sourceCode.replace(/\n/g, '\r\n');
+                }
+                zip.file(`${dir}/main.cpp`, GenerateExecutableSourceCodeFile())
+              } else {
+                let codePair = GenerateLibrarySourceCode(project.name);
+                if(window.navigator.platform === "Win32") {
+                  codePair.header = codePair.header.replace(/\n/g, '\r\n');
+                  codePair.source = codePair.source.replace(/\n/g, '\r\n');
+                }
+
+                zip.file(`${dir}/${project.name}.h`, codePair.header);
+                zip.file(`${dir}/${project.name}.cpp`, codePair.source);
+              }
+
             })));
       })
       .then(() => zip.generateAsync({ type: 'blob'}))
