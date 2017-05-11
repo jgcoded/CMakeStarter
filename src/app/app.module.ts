@@ -7,12 +7,13 @@ import { AppComponent }  from './app.component';
 import { ProjectDetailComponent } from './project-detail.component';
 import { SolutionComponent } from './solution.component';
 import { ProjectService } from './project.service';
-import { DashboardComponent } from './dashboard.component';
+import { CMakePreviewComponent } from './cmake-preview.component';
 import { ProjectListComponent } from './project-list.component';
 import { TreeViewComponent } from './tree-view.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AddDependenciesComponent } from './add-dependencies.component';
 import { AddProjectComponent } from './add-project.component';
+
 @NgModule({
   imports: [
     BrowserModule,
@@ -23,7 +24,7 @@ import { AddProjectComponent } from './add-project.component';
     AppComponent,
     SolutionComponent,
     ProjectDetailComponent,
-    DashboardComponent,
+    CMakePreviewComponent,
     ProjectListComponent,
     AddDependenciesComponent,
     TreeViewComponent,

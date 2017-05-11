@@ -4,11 +4,11 @@ import { ProjectService } from './project.service';
 import { Tree } from './tree-view.component';
 
 @Component({
-  selector: 'dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  selector: 'cmake-preview',
+  templateUrl: './cmake-preview.component.html',
+  styleUrls: ['./cmake-preview.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class CMakePreviewComponent implements OnInit {
 
   constructor(private projectService: ProjectService) { }
 
