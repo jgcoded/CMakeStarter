@@ -19,3 +19,12 @@ pre {
   float: left;
   width: 200px;
 }
+.download {
+  margin-top: 1em;
+  margin-bottom: 2em;
+}
+.download button {
+  color: #fff;
+  background-color: #e74c3c;
+  margin-top: 0.5em;
+}
