@@ -65,7 +65,7 @@ export class ProjectService {
   }
 
   generateRootCMakeFile(): Promise<string> {
-    return Promise.resolve(GenerateRootCMakeListsTxt(SOLUTION_NAME));
+    return this.getSolutionName().then(solutionName => GenerateRootCMakeListsTxt(solutionName));
   }
 
   generateSrcCMakeFile(): Promise<string> {
@@ -148,20 +148,24 @@ export class ProjectService {
 
   generateUserProjectCMake(project: Project): Promise<string> {
 
-    return this.getDependencies(project.id).then(projects => {
+    return this.getDependencies(project.id)
+    .then(projects => {
 
-      let subprojects: Array<Project> = [];
-      let thirdParty: Array<ThirdPartyProject> = [];
+      return this.getSolutionName()
+        .then(solutionName => {
+          let subprojects: Array<Project> = [];
+          let thirdParty: Array<ThirdPartyProject> = [];
 
-      projects.forEach(project => {
-        if((<ThirdPartyProject>project).sourceType === undefined) {
-          subprojects.push(project);
-        } else {
-          thirdParty.push(<ThirdPartyProject>project);
-        }
+          projects.forEach(project => {
+            if((<ThirdPartyProject>project).sourceType === undefined) {
+              subprojects.push(project);
+            } else {
+              thirdParty.push(<ThirdPartyProject>project);
+            }
 
-      });
-      return GenerateSubprojectCMakeListsTxt(project, subprojects, thirdParty);
+          });
+          return GenerateSubprojectCMakeListsTxt(solutionName, project, subprojects, thirdParty);
+        });
     });
   }
 
@@ -240,22 +244,42 @@ export class ProjectService {
     let zip: JSZip = new JSZip();
 
     return this.generateRootCMakeFile()
-      .then(rootCmake => { 
+      .then(rootCmake => {
+
+        if(window.navigator.platform === "Win32") {
+          console.log('replacing');
+          rootCmake = rootCmake.replace(/\n/g, '\r\n');
+        }
+
         zip.file("CMakeLists.txt", rootCmake);
         return this.generateSrcCMakeFile()
       })
       .then(srcCmake => {
+
+        if(window.navigator.platform === "Win32") {
+          srcCmake = srcCmake.replace(/\n/g, '\r\n');
+        }
         zip.file("src/CMakeLists.txt", srcCmake);
+
         return this.generateThirdPartyCMakeFile();
       })
       .then(thirdPartyCmake => {
+
+        if(window.navigator.platform === "Win32") {
+          thirdPartyCmake = thirdPartyCmake.replace(/\n/g, '\r\n');
+        }        
         zip.file("cmake/3rdParty.cmake", thirdPartyCmake);
         return this.getUserProjects();
       })
       .then(userProjects => {
         return Promise.all(userProjects.map(project =>
           this.generateUserProjectCMake(project)
-            .then(projectCmake => zip.file(`src/${project.name}/CMakeLists.txt`, projectCmake))))
+            .then(projectCmake => {
+              if(window.navigator.platform === "Win32") {
+                projectCmake = projectCmake.replace(/\n/g, '\r\n');
+              }
+              zip.file(`src/${project.name}/CMakeLists.txt`, projectCmake)
+            })));
       })
       .then(() => zip.generateAsync({ type: 'blob'}))
       .then(content => {

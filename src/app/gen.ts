@@ -5,12 +5,12 @@ import {
     ThirdPartyProject,
     ProjectType,
     MakeThirdPartyProject,
-    CMakeThirdPartyProject } from "./models";
+    CMakeThirdPartyProject
+} from "./models";
 
-export function GenerateRootCMakeListsTxt(solutionName : string) : string
-{
-    let template : string =
-`
+export function GenerateRootCMakeListsTxt(solutionName: string): string {
+    let template: string =
+        `
 cmake_minimum_required(VERSION 2.8.11)
 
 project(${solutionName})
@@ -51,12 +51,11 @@ install(EXPORT ${solutionName} NAMESPACE ${solutionName}_ DESTINATION cmake)
     return template;
 }
 
-export function GenerateSrcDirectoryCMakeListsTxt(subprojects : Array<Project>) : string
-{
+export function GenerateSrcDirectoryCMakeListsTxt(subprojects: Array<Project>): string {
 
     let subdirectories = subprojects.map(
-        function(dep: Project) : string {
-            return `include_directories(${dep.name})`;
+        function (dep: Project): string {
+            return `add_subdirectory(${dep.name})`;
         }
     ).join('\n');
 
@@ -66,25 +65,25 @@ ${subdirectories}
 }
 
 export function GenerateSubprojectCMakeListsTxt(
-    project : Project,
-    userSubProjects : Array<Project>,
-    thirdParty : Array<ThirdPartyProject>) : string
-{
+    solutionName: string,
+    project: Project,
+    userSubProjects: Array<Project>,
+    thirdParty: Array<ThirdPartyProject>): string {
 
     let dependenciesList: string = thirdParty.map(
-        function (dep: ThirdPartyProject) : string {
+        function (dep: ThirdPartyProject): string {
             return dep.name;
         }
     ).concat(
         userSubProjects.map(
-            function (userProject : Project) : string {
+            function (userProject: Project): string {
                 return userProject.name;
             }
         )
-    ).join('\n');
+        ).join('\n');
 
     let includeDirsList: string = thirdParty.map(
-        function(dep : ThirdPartyProject) : string {
+        function (dep: ThirdPartyProject): string {
             return `\${${dep.name}_INCLUDE_DIRS}`;
         }
     ).join('\n');
@@ -101,13 +100,13 @@ set(SOURCES
 )
 
 ${ project.type == ProjectType.Exectuable ?
-    `add_executable(\${TARGET} \${HEADERS} \${SOURCES})`
- : project.type == ProjectType.SharedLibrary ?
-    `add_library(\${TARGET} SHARED \${HEADERS} \${SOURCES})`
- : project.type == ProjectType.StaticLibrary ?
-    `add_library(\${TARGET} STATIC \${HEADERS} \${SOURCES})`
-    : ""
- }
+            `add_executable(\${TARGET} \${HEADERS} \${SOURCES})`
+            : project.type == ProjectType.SharedLibrary ?
+                `add_library(\${TARGET} SHARED \${HEADERS} \${SOURCES})`
+                : project.type == ProjectType.StaticLibrary ?
+                    `add_library(\${TARGET} STATIC \${HEADERS} \${SOURCES})`
+                    : ""
+        }
 
 target_include_directories(\${TARGET} PUBLIC
 ${includeDirsList}
@@ -124,8 +123,8 @@ target_compile_definitions(\${TARGET} PUBLIC
 set_target_properties(\${TARGET} PROPERTIES FOLDER "\${TARGET}")
 
 install(TARGETS \${TARGET}
-    EXPORT amcs
-    COMPONENT ${ project.type == ProjectType.Exectuable ? "bin" : "lib" }
+    EXPORT ${solutionName}
+    COMPONENT ${ project.type == ProjectType.Exectuable ? "bin" : "lib"}
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib/static
@@ -134,8 +133,7 @@ install(TARGETS \${TARGET}
 }
 
 
-function GenerateExternalProjectAddBeginPartial(thirdParty : ThirdPartyProject)
-{
+function GenerateExternalProjectAddBeginPartial(thirdParty: ThirdPartyProject) {
 
     return `
 set(SOURCE_DIR \${CMAKE_CURRENT_BINARY_DIR}/${thirdParty.name})
@@ -143,28 +141,27 @@ ExternalProject_add(
     ${thirdParty.name}Download
     ${
         thirdParty.sourceType === ThirdPartySource.File ? "URL" :
-        thirdParty.sourceType === ThirdPartySource.Git ? "GIT_REPOSITORY" : ""
-    }
+            thirdParty.sourceType === ThirdPartySource.Git ? "GIT_REPOSITORY" : ""
+        }
     ${thirdParty.location}
     SOURCE_DIR \${SOURCE_DIR}`;
 }
 
 
 function GenerateExternalProjectAddEndPartial(
-    thirdParty : ThirdPartyProject,
-    dependencies : Array<string>) : string
-{
+    thirdParty: ThirdPartyProject,
+    dependencies: Array<string>): string {
 
-    let projectType : string = "STATIC"
-    let extension : string = "a"
-    if(thirdParty.type == ProjectType.SharedLibrary) {
+    let projectType: string = "STATIC"
+    let extension: string = "a"
+    if (thirdParty.type == ProjectType.SharedLibrary) {
         projectType = "SHARED";
         extension = "so";
     }
 
-    let dependenciesString : string = dependencies.join(' ');
+    let dependenciesString: string = dependencies.join(' ');
 
-return `
+    return `
 )
 add_library(${thirdParty.name} ${projectType} IMPORTED)
 add_dependencies(${thirdParty.name} ${thirdParty.name}Download ${dependenciesString})
@@ -175,14 +172,13 @@ set_target_properties(${thirdParty.name} PROPERTIES
 }
 
 export function GenerateCMakeThirdPartyProjectString(
-    cmakeProject : CMakeThirdPartyProject,
-    dependencies : Array<string>) : string
-{
+    cmakeProject: CMakeThirdPartyProject,
+    dependencies: Array<string>): string {
 
-    let args : string = cmakeProject.cmakeArguments.join('\n');
-    let beginPartial : string = GenerateExternalProjectAddBeginPartial(cmakeProject);
-    let endPartial : string = GenerateExternalProjectAddEndPartial(cmakeProject, dependencies);
-return `
+    let args: string = cmakeProject.cmakeArguments.join('\n');
+    let beginPartial: string = GenerateExternalProjectAddBeginPartial(cmakeProject);
+    let endPartial: string = GenerateExternalProjectAddEndPartial(cmakeProject, dependencies);
+    return `
 ${beginPartial}
     CMAKE_ARGS
         -DCMAKE_BUILD_TYPE=\${CMAKE_BUILD_TYPE}
@@ -193,12 +189,11 @@ ${endPartial}
 }
 
 export function GenerateMakeThirdPartyProjectString(
-    makeProject : MakeThirdPartyProject,
-    dependencies: Array<string>) : string
-{
-    let beginPartial : string = GenerateExternalProjectAddBeginPartial(makeProject);
-    let endPartial : string = GenerateExternalProjectAddEndPartial(makeProject, dependencies);
-return `
+    makeProject: MakeThirdPartyProject,
+    dependencies: Array<string>): string {
+    let beginPartial: string = GenerateExternalProjectAddBeginPartial(makeProject);
+    let endPartial: string = GenerateExternalProjectAddEndPartial(makeProject, dependencies);
+    return `
 ${beginPartial}
     CONFIGURE_COMMAND ${makeProject.configureCommand}
     BUILD_COMMAND ${makeProject.buildCommand}
@@ -207,21 +202,20 @@ ${endPartial}
 `;
 }
 
-function IsCMakeProject(thirdParty : ThirdPartyProject) : thirdParty is CMakeThirdPartyProject {
+function IsCMakeProject(thirdParty: ThirdPartyProject): thirdParty is CMakeThirdPartyProject {
     return (<CMakeThirdPartyProject>thirdParty).cmakeArguments !== undefined;
 }
 
 export function GenerateThirdPartyCMakeFile(
-    dependencies : Array<ThirdPartyProject>,
-    dependenciesMap: Map<number, Array<string>>) : string
-{
+    dependencies: Array<ThirdPartyProject>,
+    dependenciesMap: Map<number, Array<string>>): string {
 
-    let allDependencyStrings : string = "";
+    let allDependencyStrings: string = "";
 
     dependencies.forEach(thirdParty => {
         let thirdPartyDeps: Array<string> = dependenciesMap.get(thirdParty.id);
 
-        if(IsCMakeProject(thirdParty)) {
+        if (IsCMakeProject(thirdParty)) {
             allDependencyStrings += GenerateCMakeThirdPartyProjectString(
                 <CMakeThirdPartyProject>thirdParty,
                 thirdPartyDeps);
