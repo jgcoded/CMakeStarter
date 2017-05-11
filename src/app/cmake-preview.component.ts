@@ -13,6 +13,8 @@ export class CMakePreviewComponent implements OnInit {
   constructor(private projectService: ProjectService) { }
 
   onNodeSelectedEvent = new EventEmitter<Tree>();
+  onPreviewChange = new EventEmitter<string>();
+
   previewTitle: string;
   preview: string;
   userProjects: Project[];
@@ -123,7 +125,7 @@ export class CMakePreviewComponent implements OnInit {
     }
 
     if(promise) {
-      promise.then(value => this.preview = value)
+      promise.then(value => this.onPreviewChange.emit(value))
         .catch(reason => this.preview = `Error: Could not generate this file: ${reason}`);
     }
 

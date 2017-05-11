@@ -15,11 +15,9 @@
   <div class="preview">
     Select a CMake file on the left to view its preview here
     <h4>{{previewTitle}}</h4>
-    <pre>
-    <code>
-    {{preview}}
-    </code>
-    </pre>
+
+    <code-mirror [(code)]="preview" [setCode]="onPreviewChange"></code-mirror>
+
   </div>
 
 </div>

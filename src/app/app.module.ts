@@ -13,6 +13,7 @@ import { TreeViewComponent } from './tree-view.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AddDependenciesComponent } from './add-dependencies.component';
 import { AddProjectComponent } from './add-project.component';
+import { CodeMirrorComponent } from './code-mirror.component';
 
 @NgModule({
   imports: [
@@ -28,7 +29,8 @@ import { AddProjectComponent } from './add-project.component';
     ProjectListComponent,
     AddDependenciesComponent,
     TreeViewComponent,
-    AddProjectComponent
+    AddProjectComponent,
+    CodeMirrorComponent
   ],
   bootstrap:    [ AppComponent ],
   providers: [ ProjectService ]
