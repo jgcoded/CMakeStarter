@@ -13,6 +13,8 @@ export class CodeMirrorComponent implements OnInit, AfterViewInit {
 
   @Input() code: string;
   @Input() setCode: EventEmitter<string>;
+  @Input() configuration: CodeMirror.EditorConfiguration;
+
   @Output() codeChange = new EventEmitter<string>();
 
   codemirror: CodeMirror.EditorFromTextArea;
@@ -29,10 +31,7 @@ export class CodeMirrorComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.codemirror = CodeMirror.fromTextArea(this.codeTextArea.nativeElement, {
-      lineNumbers: true,
-      mode: 'cmake'
-    })
+    this.codemirror = CodeMirror.fromTextArea(this.codeTextArea.nativeElement, this.configuration);
     
     this.codemirror.on('change', editor => {
       this.codeChange.emit(editor.getValue());

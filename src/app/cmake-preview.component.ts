@@ -23,6 +23,12 @@ export class CMakePreviewComponent implements OnInit {
   readonly ROOT_CMAKE_NODE_ID: number = -2;
   readonly SRC_CMAKE_NODE_ID: number = -3;
 
+  cmakeConfiguration: CodeMirror.EditorConfiguration = {
+      lineNumbers: true,
+      mode: 'cmake',
+      viewportMargin: Infinity
+    }
+
   tree: Tree = {
     value: "Project Root/",
     children: [
