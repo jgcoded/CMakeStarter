@@ -3,6 +3,9 @@ import { Project } from './models';
 import { ProjectService } from './project.service';
 import { Tree } from './tree-view.component';
 
+
+import 'codemirrorjs/mode/cmake/cmake.js';
+
 @Component({
   selector: 'cmake-preview',
   templateUrl: './cmake-preview.component.html',

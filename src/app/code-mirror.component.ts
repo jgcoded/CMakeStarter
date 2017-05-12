@@ -1,11 +1,12 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 
+import * as CodeMirror from 'codemirror';
+
 @Component({
   selector: 'code-mirror',
   template: `
   <textarea #code></textarea>
-`,
-  styleUrls: ['node_modules/codemirror/lib/codemirror.css']
+`
 })
 export class CodeMirrorComponent implements OnInit, AfterViewInit {
 

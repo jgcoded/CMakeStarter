@@ -3,6 +3,9 @@ import { Project, ProjectType, ThirdPartyProject, CMakeThirdPartyProject, MakeTh
 import { SOLUTION_NAME, PROJECTS, MAKE_PROJECTS, CMAKE_PROJECTS, DEPENDENCY_GRAPH } from './mock-projects';
 import { AdjacencyList, topologicalSort } from './graph';
 
+import * as JSZip from 'jszip';
+import * as saveAs from 'file-saver';
+
 import { 
   GenerateRootCMakeListsTxt,
   GenerateSubprojectCMakeListsTxt,
@@ -249,7 +252,6 @@ export class ProjectService {
       .then(rootCmake => {
 
         if(window.navigator.platform === "Win32") {
-          console.log('replacing');
           rootCmake = rootCmake.replace(/\n/g, '\r\n');
         }
 
