@@ -1,10 +1,11 @@
 import { Component, OnInit, EventEmitter, AfterViewInit } from '@angular/core';
-import { Project } from './models';
+import { Project, ProjectType } from './models';
 import { ProjectService } from './project.service';
 import { Tree } from './tree-view.component';
 
 
 import 'codemirrorjs/mode/cmake/cmake.js';
+import 'codemirrorjs/mode/clike/clike.js';
 
 @Component({
   selector: 'cmake-preview',
@@ -17,6 +18,7 @@ export class CMakePreviewComponent implements OnInit, AfterViewInit {
 
   onNodeSelectedEvent = new EventEmitter<Tree>();
   onPreviewChange = new EventEmitter<string>();
+  onChangeMode = new EventEmitter<string>();
 
   previewTitle: string;
   preview: string;
@@ -74,16 +76,36 @@ export class CMakePreviewComponent implements OnInit, AfterViewInit {
     let srcNode: Tree = this.tree.children[1];
     srcNode.children.splice(0);
     this.userProjects.forEach(project => {
+
+      let children: Array<Tree> = [{
+          id: project.id,
+          value: "CMakeLists.txt",
+          children: []
+        }];
+
+      if(project.type == ProjectType.Exectuable) {
+        children.push({
+          id: project.id,
+          value: "main.cpp",
+          children: []
+        });
+      } else {
+        children.push({
+          id: project.id,
+          value: `${project.name}.h`,
+          children: []
+        });
+        children.push({
+          id: project.id,
+          value: `${project.name}.cpp`,
+          children: []
+        });
+      }
+
       srcNode.children.push(
         {
           value: project.name,
-          children: [
-            {
-              id: project.id,
-              value: "CMakeLists.txt",
-              children: []
-            }
-          ]
+          children: children
         }
       )
     });
@@ -126,13 +148,28 @@ export class CMakePreviewComponent implements OnInit, AfterViewInit {
 
       default:
 
-        if(node.value !== "CMakeLists.txt") {
+        let foundProject : Project = this.userProjects.find(project => project.id === node.id);
+
+        if(foundProject === null) {
           break;
         }
-        let foundProject : Project = this.userProjects.find(project => project.id === node.id);
-        if(foundProject) {
-          this.previewTitle = `CMakeLists.txt for ${foundProject.name}`;
-          promise = this.projectService.generateUserProjectCMake(foundProject);
+
+        if(node.value === `${foundProject.name}.h`) {
+            this.previewTitle = `${foundProject.name}.h`;
+            promise = this.projectService.generateLibraryHeaderFile(foundProject.name);
+            this.onChangeMode.emit('text/x-c++src');
+        } else if(node.value === `${foundProject.name}.cpp`) {
+            this.previewTitle = `${foundProject.name}.cpp`;
+            promise = this.projectService.generateLibrarySourceFile(foundProject.name);
+            this.onChangeMode.emit('text/x-c++src');
+        } else if (node.value === 'main.cpp') {
+          this.previewTitle = 'main.cpp';
+          promise = this.projectService.generateExecutableSourceCodeFile();
+          this.onChangeMode.emit('text/x-c++src');
+        } else if(node.value === "CMakeLists.txt") {
+            this.previewTitle = `CMakeLists.txt for ${foundProject.name}`;
+            promise = this.projectService.generateUserProjectCMake(foundProject);
+            this.onChangeMode.emit('cmake');
         }
         break;
     }

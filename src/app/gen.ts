@@ -279,9 +279,8 @@ int main() {
 `;
 }
 
-export function GenerateLibrarySourceCode(projectName: string): { header: string, source: string } {
-  return {
-    header: `
+export function GenerateLibraryHeaderFile(projectName: string): string {
+  return `
 #pragma once
 
 #ifdef _MSC_VER_ // Compiling with MSVC
@@ -319,8 +318,11 @@ export function GenerateLibrarySourceCode(projectName: string): { header: string
 
 API std::string HelloWorld();
 
-`,
-    source: `
+`;
+}
+
+export function GenerateLibrarySourceFile(projectName: string): string {
+  return `
 #include "${projectName}.h"
 #include <string>
 
@@ -329,7 +331,5 @@ using namespace std;
 string HelloWorld() {
     return "Hello, World!";
 }
-`
-  }
-
+`;
 }

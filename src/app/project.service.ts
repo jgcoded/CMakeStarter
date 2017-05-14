@@ -12,7 +12,8 @@ import {
   GenerateSrcDirectoryCMakeListsTxt,
   GenerateThirdPartyCMakeFile,
   GenerateExecutableSourceCodeFile,
-  GenerateLibrarySourceCode
+  GenerateLibraryHeaderFile,
+  GenerateLibrarySourceFile
  } from './gen';
 
 @Injectable()
@@ -244,6 +245,18 @@ export class ProjectService {
       });
   }
 
+  generateExecutableSourceCodeFile(): Promise<string> {
+    return Promise.resolve(GenerateExecutableSourceCodeFile());
+  }
+
+  generateLibraryHeaderFile(projectName: string): Promise<string> {
+    return Promise.resolve(GenerateLibraryHeaderFile(projectName));
+  }
+
+  generateLibrarySourceFile(projectName: string): Promise<string> {
+    return Promise.resolve(GenerateLibrarySourceFile(projectName));
+  }
+
   generateZipFile(): Promise<void> {
 
     let zip: JSZip = new JSZip();
@@ -294,16 +307,18 @@ export class ProjectService {
                 if(window.navigator.platform === "Win32") {
                   sourceCode = sourceCode.replace(/\n/g, '\r\n');
                 }
-                zip.file(`${dir}/main.cpp`, GenerateExecutableSourceCodeFile())
+                zip.file(`${dir}/main.cpp`, sourceCode)
               } else {
-                let codePair = GenerateLibrarySourceCode(project.name);
+                let header = GenerateLibraryHeaderFile(project.name);
+                let source = GenerateLibrarySourceFile(project.name);
+
                 if(window.navigator.platform === "Win32") {
-                  codePair.header = codePair.header.replace(/\n/g, '\r\n');
-                  codePair.source = codePair.source.replace(/\n/g, '\r\n');
+                  header = header.replace(/\n/g, '\r\n');
+                  source = source.replace(/\n/g, '\r\n');
                 }
 
-                zip.file(`${dir}/${project.name}.h`, codePair.header);
-                zip.file(`${dir}/${project.name}.cpp`, codePair.source);
+                zip.file(`${dir}/${project.name}.h`, header);
+                zip.file(`${dir}/${project.name}.cpp`, source);
               }
 
             })));

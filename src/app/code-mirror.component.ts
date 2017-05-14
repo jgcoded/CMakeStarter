@@ -14,6 +14,7 @@ export class CodeMirrorComponent implements OnInit, AfterViewInit {
 
   @Input() code: string;
   @Input() setCode: EventEmitter<string>;
+  @Input() changeMode: EventEmitter<string>;
   @Input() configuration: CodeMirror.EditorConfiguration;
 
   @Output() codeChange = new EventEmitter<string>();
@@ -29,11 +30,17 @@ export class CodeMirrorComponent implements OnInit, AfterViewInit {
         }
       });
     }
+    if(this.changeMode) {
+      this.changeMode.subscribe((newMode: any) => {
+        if(this.codemirror) {
+          this.codemirror.setOption('mode', newMode);
+        }
+      });
+    }
   }
 
   ngAfterViewInit(): void {
     this.codemirror = CodeMirror.fromTextArea(this.codeTextArea.nativeElement, this.configuration);
-    
     this.codemirror.on('change', editor => {
       this.codeChange.emit(editor.getValue());
     });
