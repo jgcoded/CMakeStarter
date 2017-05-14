@@ -3,9 +3,8 @@ import { Project, ProjectType } from './models';
 import { ProjectService } from './project.service';
 import { Tree } from './tree-view.component';
 
-
-import 'codemirrorjs/mode/cmake/cmake.js';
-import 'codemirrorjs/mode/clike/clike.js';
+import 'codemirror/mode/cmake/cmake.js';
+import 'codemirror/mode/clike/clike.js';
 
 @Component({
   selector: 'cmake-preview',
