@@ -83,7 +83,7 @@ export class CMakePreviewComponent implements OnInit, AfterViewInit {
           children: []
         }];
 
-      if(project.type == ProjectType.Exectuable) {
+      if(project.type == ProjectType.Executable) {
         children.push({
           id: project.id,
           value: "main.cpp",

@@ -13,8 +13,8 @@ export const DEFAULT_SOLUTION: Solution = {
   solutionName: "MyProject",
   userProjects: [
     { id: 0, name: "mylib", type: ProjectType.StaticLibrary },
-    { id: 1, name: "app", type: ProjectType.Exectuable },
-    { id: 3, name: "tests", type: ProjectType.Exectuable }
+    { id: 1, name: "app", type: ProjectType.Executable },
+    { id: 3, name: "tests", type: ProjectType.Executable }
   ],
   makeProjects: [],
   cmakeProjects: [

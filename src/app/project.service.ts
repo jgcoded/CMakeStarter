@@ -76,7 +76,7 @@ export class ProjectService {
         }
 
         return projects.filter((project: Project) =>
-          project.type !== ProjectType.Exectuable && project.id !== id && ids.findIndex(depId => project.id === depId) === -1);
+          project.type !== ProjectType.Executable && project.id !== id && ids.findIndex(depId => project.id === depId) === -1);
       });
     });
   }
@@ -317,7 +317,7 @@ export class ProjectService {
 
               zip.file(`${dir}/CMakeLists.txt`, projectCmake)
 
-              if(project.type === ProjectType.Exectuable) {
+              if(project.type === ProjectType.Executable) {
 
                 let sourceCode: string = GenerateExecutableSourceCodeFile();
                 if(window.navigator.platform === "Win32") {

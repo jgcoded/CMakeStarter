@@ -64,7 +64,7 @@ export class AddProjectComponent {
   ){}
 
   projectName: string;
-  projectType: ProjectType = ProjectType.Exectuable;
+  projectType: ProjectType = ProjectType.Executable;
   isThirdPartyProject: boolean = false;
   thirdPartySource: ThirdPartySource;
   projectBuildType: string = "cmake";

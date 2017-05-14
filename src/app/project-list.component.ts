@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core'
 import { Project, ProjectType } from './models';
 
 const PROJECT_TYPE_TO_BADGE: Array<string> = new Array<string>();
-PROJECT_TYPE_TO_BADGE[ProjectType.Exectuable] = "EX";
+PROJECT_TYPE_TO_BADGE[ProjectType.Executable] = "EX";
 PROJECT_TYPE_TO_BADGE[ProjectType.SharedLibrary] = "SH";
 PROJECT_TYPE_TO_BADGE[ProjectType.StaticLibrary] = "ST";
 

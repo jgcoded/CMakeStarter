@@ -94,16 +94,16 @@ cmake_minimum_required(VERSION 2.8.11)\n\n
 set(TARGET ${project.name})
 
 set(HEADERS
-${ project.type !== ProjectType.Exectuable ?
+${ project.type !== ProjectType.Executable ?
    `${project.name}.h` : '' }
 )
 
 set(SOURCES
-  ${ project.type === ProjectType.Exectuable ?
+  ${ project.type === ProjectType.Executable ?
   'main.cpp': `${project.name}.cpp` }
 )
 
-${project.type !== ProjectType.Exectuable ? `
+${project.type !== ProjectType.Executable ? `
 set(BUILD_TYPE )
 set(COMPILE_DEFINITIONS )
 option(${project.name}_STATIC "Build ${project.name} as a static library?" ${project.type === ProjectType.StaticLibrary? 'ON': 'OFF'})
@@ -117,7 +117,7 @@ endif()
 `: ''
 }
 
-${ project.type == ProjectType.Exectuable ?
+${ project.type == ProjectType.Executable ?
   `add_executable(\${TARGET} \${HEADERS} \${SOURCES})`
   :
   `add_library(\${TARGET} \${BUILD_TYPE} \${HEADERS} \${SOURCES})`
@@ -132,11 +132,11 @@ ${dependenciesList}
 )
 
 target_compile_definitions(\${TARGET} PUBLIC
-${ project.type !== ProjectType.Exectuable ?
+${ project.type !== ProjectType.Executable ?
 '\${COMPILE_DEFINITIONS}' : ''
 }
 )
-${ project.type === ProjectType.Exectuable ?
+${ project.type === ProjectType.Executable ?
 'set_target_properties(\${TARGET} PROPERTIES COMPILE_FLAGS "/MT" )':
 `# If necessary, uncomment the following line and add compiler flags 
 # set_target_properties(\${TARGET} PROPERTIES COMPILE_FLAGS )}` }
@@ -145,7 +145,7 @@ set_target_properties(\${TARGET} PROPERTIES FOLDER "\${TARGET}")
 
 install(TARGETS \${TARGET}
     EXPORT ${solutionName}
-    COMPONENT ${ project.type == ProjectType.Exectuable ? "bin" : "lib"}
+    COMPONENT ${ project.type == ProjectType.Executable ? "bin" : "lib"}
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib/static
@@ -193,7 +193,7 @@ set(EXTENSION lib)
 endif()
 add_library(${thirdParty.name} \${${thirdParty.name}_BUILD_TYPE} IMPORTED)
 add_dependencies(${thirdParty.name} ${thirdParty.name}Download ${dependenciesString})
-${ thirdParty.type === ProjectType.Exectuable ? '' : `
+${ thirdParty.type === ProjectType.Executable ? '' : `
 set_target_properties(${thirdParty.name} PROPERTIES
     IMPORTED_LOCATION
         \${THIRD_PARTY_INSTALL_PREFIX}/lib/\${PREFIX}${thirdParty.name}.\${EXTENSION}
