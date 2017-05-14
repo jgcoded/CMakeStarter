@@ -16,16 +16,23 @@ export class SolutionComponent implements OnInit {
 
   projects : Array<Project>;
   selectedProject: Project;
+  solutionName: string;
+  displayedSolutionName: string;
 
   ngOnInit(): void {
-    this.getProjects();
-  }
-
-  getProjects(): void {
     this.projectService.getProjects().then(
       projects => this.projects = projects
     );
+    this.projectService.getSolutionName().then(
+      name => { this.solutionName = name; this.displayedSolutionName = name; }
+    );
   }
+
+  updateSolutionName(): void {
+    this.projectService.updateSolutionName(this.solutionName)
+      .then(() => this.displayedSolutionName = this.solutionName);
+  }
+
   onSelect(project: Project): void {
     this.selectedProject = project;
   }

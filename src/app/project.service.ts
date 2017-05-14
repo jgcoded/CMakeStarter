@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Project, ProjectType, ThirdPartyProject, CMakeThirdPartyProject, MakeThirdPartyProject } from './models';
-import { SOLUTION_NAME, PROJECTS, MAKE_PROJECTS, CMAKE_PROJECTS, DEPENDENCY_GRAPH } from './mock-projects';
+import { Solution, DEFAULT_SOLUTION } from './mock-projects';
 import { AdjacencyList, topologicalSort } from './graph';
 
 import * as JSZip from 'jszip';
@@ -26,11 +26,18 @@ export class ProjectService {
   }
 
   getSolutionName(): Promise<string> {
-    return Promise.resolve(SOLUTION_NAME);
+    return Promise.resolve(DEFAULT_SOLUTION.solutionName);
+  }
+
+  updateSolutionName(newName: string): Promise<void> {
+    return Promise.resolve(DEFAULT_SOLUTION.solutionName = newName).then(() => {});
   }
 
   getProjects() : Promise<Array<Project>> {
-    return Promise.resolve(PROJECTS.concat(MAKE_PROJECTS).concat(CMAKE_PROJECTS));
+    return Promise.resolve(
+      DEFAULT_SOLUTION.userProjects
+      .concat(DEFAULT_SOLUTION.makeProjects)
+      .concat(DEFAULT_SOLUTION.cmakeProjects));
   }
 
   getProject(id: number): Promise<Project> {
@@ -39,15 +46,17 @@ export class ProjectService {
   }
 
   getUserProjects(): Promise<Array<Project>> {
-    return Promise.resolve(PROJECTS);
+    return Promise.resolve(DEFAULT_SOLUTION.userProjects);
   }
 
   getDependencies(id: number) : Promise<Array<Project>> {
-    return Promise.resolve(DEPENDENCY_GRAPH.get(id)).then(depIds => Promise.all(depIds.map(depId => this.getProject(depId))));
+    return Promise.resolve(
+      DEFAULT_SOLUTION.dependencyGraph.get(id)).then(depIds => Promise.all(depIds.map(depId => this.getProject(depId)))
+    );
   }
 
   getDependencyIds(id: number): Promise<Array<number>> {
-    return Promise.resolve(DEPENDENCY_GRAPH.get(id));
+    return Promise.resolve(DEFAULT_SOLUTION.dependencyGraph.get(id));
   }
 
   getCandidateDependencies(id: number): Promise<Array<Project>> {
@@ -59,13 +68,15 @@ export class ProjectService {
 
       return this.getDependencyIds(id).then((ids: Array<number>) => {
 
-        let projects: Array<Project> = (<Array<Project>>MAKE_PROJECTS).concat(CMAKE_PROJECTS);
+        let projects: Array<Project> = 
+          (<Array<Project>>DEFAULT_SOLUTION.makeProjects).concat(DEFAULT_SOLUTION.cmakeProjects);
 
         if(!isThirdParty) {
-          projects = projects.concat(PROJECTS);
+          projects = projects.concat(DEFAULT_SOLUTION.userProjects);
         }
 
-        return projects.filter((project: Project) => project.type !== ProjectType.Exectuable && project.id !== id && ids.findIndex(depId => project.id === depId) === -1);
+        return projects.filter((project: Project) =>
+          project.type !== ProjectType.Exectuable && project.id !== id && ids.findIndex(depId => project.id === depId) === -1);
       });
     });
   }
@@ -82,13 +93,13 @@ export class ProjectService {
     let projectIds: Set<number> = new Set();
     let subgraph: AdjacencyList = new Map();
 
-    PROJECTS.forEach(project => {
+    DEFAULT_SOLUTION.userProjects.forEach(project => {
       projectIds.add(project.id);
     });
 
-    PROJECTS.forEach(project => {
+    DEFAULT_SOLUTION.userProjects.forEach(project => {
       let userDependencies: Array<number> = [];
-      DEPENDENCY_GRAPH.get(project.id).forEach(depId => {
+      DEFAULT_SOLUTION.dependencyGraph.get(project.id).forEach(depId => {
         if(projectIds.has(depId)) {
           userDependencies.push(depId);
         }
@@ -117,11 +128,12 @@ export class ProjectService {
     // get subgraph of third party deps
 
     let subgraph: AdjacencyList = new Map();
-    let thirdParty: Array<ThirdPartyProject> = (<Array<ThirdPartyProject>>MAKE_PROJECTS).concat(CMAKE_PROJECTS);
+    let thirdParty: Array<ThirdPartyProject> = 
+      (<Array<ThirdPartyProject>>DEFAULT_SOLUTION.makeProjects).concat(DEFAULT_SOLUTION.cmakeProjects);
 
 
     thirdParty.forEach(project => {
-      subgraph.set(project.id, DEPENDENCY_GRAPH.get(project.id));
+      subgraph.set(project.id, DEFAULT_SOLUTION.dependencyGraph.get(project.id));
     });
 
 
@@ -133,7 +145,7 @@ export class ProjectService {
 
     let thirdPartyNames = new Map<number, Array<string>>();
     thirdParty.forEach(project => {
-      let deps = DEPENDENCY_GRAPH.get(project.id);
+      let deps = DEFAULT_SOLUTION.dependencyGraph.get(project.id);
 
       let dependencyNames: Array<string> = [];
       
@@ -179,8 +191,8 @@ export class ProjectService {
     return this.getUniqueId()
       .then(id => {
         project.id = id;
-        PROJECTS.push(project);
-        DEPENDENCY_GRAPH.set(id, []);
+        DEFAULT_SOLUTION.userProjects.push(project);
+        DEFAULT_SOLUTION.dependencyGraph.set(id, []);
         return id;
       });
   }
@@ -189,8 +201,8 @@ export class ProjectService {
     return this.getUniqueId()
       .then(id => {
         project.id = id;
-        CMAKE_PROJECTS.push(project);
-        DEPENDENCY_GRAPH.set(id, []);
+        DEFAULT_SOLUTION.cmakeProjects.push(project);
+        DEFAULT_SOLUTION.dependencyGraph.set(id, []);
         return id;
       })
   }
@@ -199,26 +211,30 @@ export class ProjectService {
     return this.getUniqueId()
       .then(id => {
         project.id = id;
-        MAKE_PROJECTS.push(project);
-        DEPENDENCY_GRAPH.set(id, []);
+        DEFAULT_SOLUTION.makeProjects.push(project);
+        DEFAULT_SOLUTION.dependencyGraph.set(id, []);
         return id;
       });
   }
 
   addDependenciesToProject(id: number, dependencies: Array<number>): Promise<void> {
-    return Promise.resolve(DEPENDENCY_GRAPH.set(id, DEPENDENCY_GRAPH.get(id).concat(dependencies))).then(() => Promise.resolve());
+    return Promise.resolve(
+        DEFAULT_SOLUTION.dependencyGraph.set(id, 
+          DEFAULT_SOLUTION.dependencyGraph.get(id).concat(dependencies))).then(() => { });
   }
 
   removeDependency(id: number, dependencyId: number): Promise<void> {
-    return Promise.resolve(DEPENDENCY_GRAPH.set(id, DEPENDENCY_GRAPH.get(id).filter(projectId => projectId !== dependencyId)))
-      .then(() => {});
+    return Promise.resolve(
+      DEFAULT_SOLUTION.dependencyGraph.set(id, 
+        DEFAULT_SOLUTION.dependencyGraph.get(id).filter(projectId => projectId !== dependencyId)))
+        .then(() => {});
   }
 
   deleteProject(id: number): Promise<void> {
-    return Promise.resolve(DEPENDENCY_GRAPH.delete(id))
+    return Promise.resolve(DEFAULT_SOLUTION.dependencyGraph.delete(id))
       .then(() => {
 
-        DEPENDENCY_GRAPH.forEach(list => {
+        DEFAULT_SOLUTION.dependencyGraph.forEach(list => {
           let foundIndex: number = list.findIndex(depId => depId === id);
           if(foundIndex > -1) {
             list.splice(foundIndex, 1);
@@ -228,19 +244,19 @@ export class ProjectService {
       }).then(() => {
         let foundIndex: number = -1;
 
-        foundIndex = PROJECTS.findIndex(project => project.id === id);
+        foundIndex = DEFAULT_SOLUTION.userProjects.findIndex(project => project.id === id);
         if(foundIndex > -1) {
-          PROJECTS.splice(foundIndex, 1);
+          DEFAULT_SOLUTION.userProjects.splice(foundIndex, 1);
         }
 
-        foundIndex = MAKE_PROJECTS.findIndex(project => project.id === id);
+        foundIndex = DEFAULT_SOLUTION.makeProjects.findIndex(project => project.id === id);
         if(foundIndex > -1) {
-          MAKE_PROJECTS.splice(foundIndex, 1);
+          DEFAULT_SOLUTION.makeProjects.splice(foundIndex, 1);
         }
 
-        foundIndex = CMAKE_PROJECTS.findIndex(project => project.id === id);
+        foundIndex = DEFAULT_SOLUTION.cmakeProjects.findIndex(project => project.id === id);
         if(foundIndex > -1) {
-          CMAKE_PROJECTS.splice(foundIndex, 1);
+          DEFAULT_SOLUTION.cmakeProjects.splice(foundIndex, 1);
         }
       });
   }

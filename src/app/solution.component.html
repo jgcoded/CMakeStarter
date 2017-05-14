@@ -1,3 +1,11 @@
+<h2>Solution</h2>
+
+<h3>{{displayedSolutionName}}</h3>
+<div>
+  <label>Solution name: </label><input type="text" [(ngModel)]="solutionName" />
+  <button (click)="updateSolutionName()">Update</button>
+</div>
+
 <h2>All Projects</h2>
 
 <project-list [projects]="projects" (selectRequest)="onSelect($event)" (deleteRequest)="onDeleteProject($event)" deletable="true"></project-list>
