@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter } from '@angular/core';
+import { Component, OnInit, EventEmitter, AfterViewInit } from '@angular/core';
 import { Project } from './models';
 import { ProjectService } from './project.service';
 import { Tree } from './tree-view.component';
@@ -11,7 +11,7 @@ import 'codemirrorjs/mode/cmake/cmake.js';
   templateUrl: './cmake-preview.component.html',
   styleUrls: ['./cmake-preview.component.css']
 })
-export class CMakePreviewComponent implements OnInit {
+export class CMakePreviewComponent implements OnInit, AfterViewInit {
 
   constructor(private projectService: ProjectService) { }
 
@@ -63,6 +63,10 @@ export class CMakePreviewComponent implements OnInit {
       .then(userProjects => { this.userProjects = userProjects; this.updateTree(); })
 
     this.onNodeSelectedEvent.subscribe((value: Tree) => this.onNodeSelected(value));
+  }
+
+  ngAfterViewInit(): void {
+    this.onNodeSelected({ id: this.ROOT_CMAKE_NODE_ID, value: "CMakeLists.txt", children: [] });
   }
 
   updateTree(): void {

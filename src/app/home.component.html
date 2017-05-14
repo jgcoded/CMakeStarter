@@ -1,0 +1,59 @@
+
+<h1>Welcome</h1>
+
+This website is a simple tool to help C++ developers quickly start a new CMake-based project. 
+
+The tool generates an entire C++ project with boiler-plate CMake files and source code, and the
+generated project can be downloaded as a zip file.
+<div>
+<button (click)="gotoCMakePreview()">Start a new project</button>
+</div>
+
+<h2>Features</h2>
+<ul>
+  <li>Generated CMake code is well-documented</li>
+  <li>Add custom projects and specify the dependencies amongst one another</li>
+  <li>Support for third party dependencies that are available to download via Git or a compressed archive</li>
+  <li>Support for Make-based or CMake-based third party dependencies</li>
+  <li>Third party dependencies are managed by CMake ExternalProject targets</li>
+  <li>The dependency graph of the projects are topologically sorted during CMake file generation</li>
+  <li>Live preview of folder structure and generated files</li>
+  <li>Download cross-platform, build-ready zip file of the project</li>
+</ul>
+
+The tool takes an opinionated approach to the generated folder structure, and it is not a one-size fits all solution,
+especially since C++ code bases can vary wildly from project to project. This tool provides the minimum necessary to allow
+developers to create a cross-platform build with third-party dependencies included.
+
+As such, the generated project files will most likely have to be modified in some way - and that's ok. As long as this
+tool can save a developer a few minutes of writing boiler-plate CMake code then this tool has succeeded.
+
+<h2>Shortcomings</h2>
+
+Because of all the possible variety of project structures within third party dependencies, this tool has some shortcomings that may cause
+developers to manually modify the generated files. In any case, the developer will know that there's a problem with third party dependencies
+because the linker tool will let them know that there's a missing library. To fix this issue, simple edit the 3rdParty.cmake file
+in the cmake folder. These are the assumptions made by the tool:
+
+<ul>
+  <li>
+    <h4>Every third party dependency only outputs one library</h4>
+
+    For example, the mongoc library has option to include a dependent project, bson, in its build. Because of this assumption, however,
+    the tool will only create a CMake target for mongoc and not bson.
+  </li>
+
+  <li>
+    <h4>The library name for the third party dependency is something like lib<i>depdency_name</i>.lib</h4>
+
+    For example, a library named foo outputs a library called libfoo.lib. The generated CMake will find this library and include it in the lib.
+    Another porject named bar outputs a library called libbar-1.0.lib. The generated CMake will not find this library because of the extra version
+    information appended to the name.
+  </li>
+  <li>
+    <h4>Every dependency is cross-platform</h4>
+
+    If a dependency is not cross-platform, then the developer must edit the CMake file so that a project is not included on the unsupported
+    platform.
+  </li>
+</ul>
