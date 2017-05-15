@@ -40,6 +40,11 @@ button:disabled {
   color: #aaa;
   cursor: auto;
 }
+.red {
+  color: #fff;
+  background-color: #e74c3c;
+  margin-top: 0.5em;
+}
 
 /* Navigation link styles */
 nav a {
@@ -117,4 +122,4 @@ nav a.active {
 .CodeMirror {
   height: auto;
 }
-/*# sourceMappingURL=app.ad23929da8d568c71ad9.css.map*/
+/*# sourceMappingURL=app.0a83ef1745ba1f616476.css.map*/
