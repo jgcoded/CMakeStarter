@@ -6,6 +6,12 @@ import { ProjectService } from './project.service';
 @Component({
   selector: 'solution',
   templateUrl: './solution.component.html',
+  styles: [`
+
+button {
+  margin: 1em;
+}
+`]
 })
 export class SolutionComponent implements OnInit {
 

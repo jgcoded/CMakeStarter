@@ -18,13 +18,11 @@ export interface Project {
 
 export enum ThirdPartySource {
     File = 1,
-    Git,
-    FindPackage
+    Git
 }
 export const SOURCE_TYPE_TO_NAME: Array<string> = new Array<string>();
 SOURCE_TYPE_TO_NAME[ThirdPartySource.File] = "File URL";
 SOURCE_TYPE_TO_NAME[ThirdPartySource.Git] = "Git URL";
-SOURCE_TYPE_TO_NAME[ThirdPartySource.FindPackage] = "CMake FindPackage";
 
 export interface ThirdPartyProject extends Project {
     sourceType: ThirdPartySource;

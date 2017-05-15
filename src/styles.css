@@ -40,6 +40,11 @@ button:disabled {
   color: #aaa;
   cursor: auto;
 }
+.red {
+  color: #fff;
+  background-color: #e74c3c;
+  margin-top: 0.5em;
+}
 
 /* Navigation link styles */
 nav a {

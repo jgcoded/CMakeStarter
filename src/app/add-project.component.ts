@@ -35,7 +35,7 @@ import { Project, CMakeThirdPartyProject, MakeThirdPartyProject, ProjectType, Th
 </div>
 
 <button (click)="cancel()">Cancel</button>  
-<button (click)="submit()">Submit</button>
+<button class="red" (click)="submit()">Submit</button>
 
 `,
   styles: [`
@@ -53,6 +53,12 @@ input {
 input[type="checkbox"] {
   height: auto;
 }
+select {
+  margin-bottom: 1em;
+}
+button {
+  margin: 1em;
+}
 `]
 })
 export class AddProjectComponent {
@@ -66,7 +72,6 @@ export class AddProjectComponent {
   projectName: string;
   projectType: ProjectType = ProjectType.Executable;
   isThirdPartyProject: boolean = false;
-  thirdPartySource: ThirdPartySource;
   projectBuildType: string = "cmake";
   readonly projectTypeToName: Array<string> = PROJECT_TYPE_TO_NAME;
 
@@ -86,7 +91,7 @@ export class AddProjectComponent {
           id: 0,
           name: this.projectName,
           type: this.projectType,
-          sourceType: this.thirdPartySource,
+          sourceType: ThirdPartySource.Git,
           location: '',
           cmakeArguments: [
             "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}",
@@ -102,7 +107,7 @@ export class AddProjectComponent {
           id: 0,
           name: this.projectName,
           type: this.projectType,
-          sourceType: this.thirdPartySource,
+          sourceType: ThirdPartySource.File,
           location: '',
           configureCommand: '',
           buildCommand: '',

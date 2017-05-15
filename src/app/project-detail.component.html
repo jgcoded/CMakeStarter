@@ -2,6 +2,8 @@
 
   <h2>{{project.name}} details</h2>
 
+  <p>Changes are saved automatically</p>
+
   <div>
     <label>Project Type: </label>
     <select [(ngModel)]="project.type">
@@ -14,19 +16,19 @@
     <input [(ngModel)]="project.name" placeholder="MyAwesomeProject" />
   </div>
 
-  <div *ngIf="project.sourceType">
+  <div *ngIf="project.sourceType !== undefined">
     <label>Where can CMake find this project?</label>
     <select [(ngModel)]="project.sourceType">
       <option *ngFor="let type of sourceTypeToName; let i=index" [value]="i">{{type}}</option>
     </select>
   </div>
 
-  <div *ngIf="project.location">
+  <div *ngIf="project.location !== undefined">
     <label>Dependency Location/Name: </label>
     <input [(ngModel)]="project.location" placeholder="http://some.place" />
   </div>
 
-  <div *ngIf="project.cmakeArguments">
+  <div *ngIf="project.cmakeArguments !== undefined">
     <label>CMake Arguments</label>
     <div *ngFor="let arg of project.cmakeArguments; let i=index">
       <input size="80" [(ngModel)]="project.cmakeArguments[i]" />
@@ -36,19 +38,19 @@
     <button [disabled]="project.cmakeArguments[project.cmakeArguments.length - 1].length === 0" (click)="addCMakeArgument()">Add Argument</button>
   </div>
 
-  <div *ngIf="project.configureCommand">
+  <div *ngIf="project.configureCommand !== undefined">
       <label>Configure Command: </label>
       <textarea rows="10" cols="80" [(ngModel)]="project.configureCommand" placeholder="A command that CMake will execute. e.g., /configure">
       </textarea>
   </div>
 
-  <div *ngIf="project.buildCommand">
+  <div *ngIf="project.buildCommand !== undefined">
       <label>Build Command: </label>
       <textarea rows="10" cols="80" [(ngModel)]="project.buildCommand" placeholder="A command that CMake will execute. e.g., make">
       </textarea>
   </div>
 
-  <div *ngIf="project.installCommand">
+  <div *ngIf="project.installCommand !== undefined">
       <label>Install Command: </label>
       <textarea rows="10" cols="80" [(ngModel)]="project.installCommand" placeholder="A command that CMake will execute. e.g., make install">
       </textarea>
@@ -62,7 +64,7 @@
       No Dependencies
     </div>
 
-    <button (click)="gotoAddDependencies()">Add Dependencies</button>
+    <button class="red" (click)="gotoAddDependencies()">Add Dependencies</button>
   </div>
 
   <button (click)="goBack()">Back</button>

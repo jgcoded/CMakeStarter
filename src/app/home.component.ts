@@ -4,7 +4,11 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'home',
   templateUrl: './home.component.html',
-  styles: []
+  styles: [`
+button {
+  margin-top: 2em;
+}
+`]
 })
 export class HomeComponent {
 
