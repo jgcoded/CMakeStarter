@@ -4,7 +4,7 @@ import { Solution, DEFAULT_SOLUTION } from './mock-projects';
 import { AdjacencyList, topologicalSort } from './graph';
 
 import * as JSZip from 'jszip';
-import * as saveAs from 'file-saver';
+import { saveAs } from 'file-saver';
 
 import { 
   GenerateRootCMakeListsTxt,
