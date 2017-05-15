@@ -16,6 +16,7 @@ const routes: Routes = [
   { path: 'detail/:id', component: ProjectDetailComponent },
   { path: 'add-dependencies/:id', component: AddDependenciesComponent },
   { path: 'add-project', component: AddProjectComponent },
+  { path: '**', redirectTo: '/home', pathMatch: 'full' }
 ];
 
 @NgModule({
