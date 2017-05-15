@@ -11,7 +11,7 @@ module.exports = webpackMerge(commonConfig, {
 
   output: {
     path: helpers.root('dist'),
-    publicPath: '/',
+    publicPath: '/CMakeStarter/',
     filename: '[name].[hash].js',
     chunkFilename: '[id].[hash].chunk.js'
   },
