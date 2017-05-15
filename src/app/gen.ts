@@ -143,13 +143,13 @@ set(HEADERS
 
 # All source files should go here.
 set(SOURCES
-    ${ project.type === ProjectType.Executable ?
+    ${ project.type == ProjectType.Executable ?
     'main.cpp': `${project.name}.cpp` }
 )
 ${project.type !== ProjectType.Executable ? `
 # This option allows the builder to decide if this project should be built
 # as a static library or a shared library.
-option(${project.name}_STATIC "Build ${project.name} as a static library?" ${project.type === ProjectType.StaticLibrary? 'ON': 'OFF'})
+option(${project.name}_STATIC "Build ${project.name} as a static library?" ${project.type == ProjectType.StaticLibrary? 'ON': 'OFF'})
 set(BUILD_TYPE )
 set(COMPILE_DEFINITIONS )
 # This if-block sets the appropriate compiler preprocessor macro needed by
@@ -229,8 +229,8 @@ function GenerateExternalProjectAddBeginPartial(thirdParty: ThirdPartyProject) {
 ExternalProject_add(
     ${thirdParty.name}Download
     ${
-    thirdParty.sourceType === ThirdPartySource.File ? "URL" :
-      thirdParty.sourceType === ThirdPartySource.Git ? "GIT_REPOSITORY" : ""
+      thirdParty.sourceType == ThirdPartySource.File ? "URL" :
+      thirdParty.sourceType == ThirdPartySource.Git ? "GIT_REPOSITORY" : ""
     }
     ${thirdParty.location}
     SOURCE_DIR \${SOURCE_DIR}`;
@@ -243,7 +243,7 @@ function GenerateExternalProjectAddEndPartial(
 
   let projectType: string = "STATIC"
   let extension: string = "a"
-  if (thirdParty.type === ProjectType.SharedLibrary) {
+  if (thirdParty.type == ProjectType.SharedLibrary) {
     projectType = "SHARED";
     extension = "so";
   }
@@ -261,7 +261,7 @@ if(WIN32)
 endif()
 add_library(${thirdParty.name} \${${thirdParty.name}_BUILD_TYPE} IMPORTED)
 add_dependencies(${thirdParty.name} ${thirdParty.name}Download ${dependenciesString})
-${ thirdParty.type === ProjectType.Executable ? '' : `
+${ thirdParty.type == ProjectType.Executable ? '' : `
 # NOTE: You may have to change the path specified after IMPORTED_LOCATION if you get
 # a linker error.
 set_target_properties(${thirdParty.name} PROPERTIES

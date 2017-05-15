@@ -317,7 +317,7 @@ export class ProjectService {
 
               zip.file(`${dir}/CMakeLists.txt`, projectCmake)
 
-              if(project.type === ProjectType.Executable) {
+              if(project.type == ProjectType.Executable) {
 
                 let sourceCode: string = GenerateExecutableSourceCodeFile();
                 if(window.navigator.platform === "Win32") {
