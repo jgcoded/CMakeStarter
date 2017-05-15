@@ -132,24 +132,26 @@ export class CMakePreviewComponent implements OnInit, AfterViewInit {
 
         this.previewTitle = "Root directory CMake file";
         promise = this.projectService.generateRootCMakeFile();
-
+        this.onChangeMode.emit('cmake');
         break;
 
       case this.SRC_CMAKE_NODE_ID:
         this.previewTitle = "src/ directory CMakeLists.txt";
         promise = this.projectService.generateSrcCMakeFile();
+        this.onChangeMode.emit('cmake');
         break;
 
       case this.THIRDPARTY_CMAKE_NODE_ID:
         this.previewTitle = "Third party CMake file";
         promise = this.projectService.generateThirdPartyCMakeFile();
+        this.onChangeMode.emit('cmake');
         break;
 
       default:
 
         let foundProject : Project = this.userProjects.find(project => project.id === node.id);
 
-        if(foundProject === null) {
+        if(!foundProject) {
           break;
         }
 
