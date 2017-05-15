@@ -5,7 +5,8 @@ The purpose of this project is to help C++ developers quickly start new CMake-ba
 The tool generates an entire C++ project with boiler-plate CMake files and source code, and the
 generated project can be downloaded as a zip file.
 
-For a feature list and more detailed description, visit the website.
+For a feature list and more detailed description, visit the website. The website is still under development
+and is not complete.
 
 ## Development
 
