@@ -97,6 +97,9 @@ export function GenerateSrcDirectoryCMakeListsTxt(subprojects: Array<Project>): 
 # in which the projects are added matters. Place all dependencies before
 # parent projects.
 
+# Include the src/ folder so that the projects can include each other's files.
+include_directories(.)
+
 ${subdirectories}
 `;
 }
@@ -143,26 +146,25 @@ set(SOURCES
     ${ project.type === ProjectType.Executable ?
     'main.cpp': `${project.name}.cpp` }
 )
-
 ${project.type !== ProjectType.Executable ? `
 # This option allows the builder to decide if this project should be built
 # as a static library or a shared library.
 option(${project.name}_STATIC "Build ${project.name} as a static library?" ${project.type === ProjectType.StaticLibrary? 'ON': 'OFF'})
 set(BUILD_TYPE )
 set(COMPILE_DEFINITIONS )
-# Set variables to their appriate values
+# This if-block sets the appropriate compiler preprocessor macro needed by
+# the library code. On windows, this is needed when importing/exporting DLLs.
 if(${project.name}_STATIC)
-  set(BUILD_TYPE "STATIC")
-  # Add any other static library specific compiler preprocessor flags here.
-  set(COMPILE_DEFINITIONS ${project.name}_STATIC)
+    set(BUILD_TYPE "STATIC")
+    # Add any other static library specific compiler preprocessor flags here.
+    set(COMPILE_DEFINITIONS ${project.name}_STATIC)
 else()
-  set(BUILD_TYPE "SHARED")
-  # Add any other shared library specific compiler preprocessor flags here. 
-  set(COMPILE_DEFINITIONS ${project.name}_EXPORT)
+    set(BUILD_TYPE "SHARED")
+    # Add any other shared library specific compiler preprocessor flags here. 
+    set(COMPILE_DEFINITIONS ${project.name}_EXPORT)
 endif()
 `: ''
 }
-
 ${ project.type == ProjectType.Executable ?
   `# Add the executable to the build using the headers and sources.
 add_executable(\${TARGET} \${HEADERS} \${SOURCES})`
@@ -188,14 +190,20 @@ ${ project.type !== ProjectType.Executable ?
 }
 )
 
-# Add compiler flags here.
-set_target_properties(\${TARGET} PROPERTIES COMPILE_FLAGS "")
+# Add compiler flags to the following COMPILE_FLAGS variable.
+set(COMPILE_FLAGS "")
+if(COMPILE_FLAGS)
+    set_target_properties(\${TARGET} PROPERTIES COMPILE_FLAGS \${COMPILE_FLAGS})
+endif()
 
-# When using an MSVC compiler (Used by Visual Studio), link the
+# When using an MSVC compiler (used by Visual Studio), link the
 # C Runtime Library as a static library.
 if(MSVC)
-  set_target_properties(\${TARGET} PROPERTIES LINK_FLAGS "/MT" )
+    set_target_properties(\${TARGET} PROPERTIES COMPILE_FLAGS "\${COMPILE_FLAGS} /MT")
 endif()
+
+# Add linker flags here.
+set_target_properties(\${TARGET} PROPERTIES LINK_FLAGS "")
 
 # Place this target into its own solution folder.
 set_target_properties(\${TARGET} PROPERTIES FOLDER "\${TARGET}")
@@ -364,8 +372,10 @@ export function GenerateExecutableSourceCodeFile(): string {
 
 using namespace std;
 
-int main() {
+int main() 
+{
     cout << "Hello, World!" << endl;
+    return 0;
 }
 `;
 }
@@ -374,7 +384,7 @@ export function GenerateLibraryHeaderFile(projectName: string): string {
   return `
 #pragma once
 
-#ifdef _MSC_VER_ // Compiling with MSVC
+#ifdef _MSC_VER // Compiling with MSVC
 
 #ifdef ${projectName}_EXPORT // Are we building DLLs?
 #define API __declspec(dllexport)
@@ -388,7 +398,7 @@ export function GenerateLibraryHeaderFile(projectName: string): string {
 
 #endif // EXPORT
 
-#else // _MSC_VER_ undefined
+#else // _MSC_VER undefined
 #define API
 #endif // _MSC_VER
 
@@ -407,8 +417,10 @@ export function GenerateLibraryHeaderFile(projectName: string): string {
 
 #endif // __linux__
 
-API std::string HelloWorld();
-
+namespace ${projectName}
+{
+    API std::string HelloWorld();
+}
 `;
 }
 
@@ -419,7 +431,8 @@ export function GenerateLibrarySourceFile(projectName: string): string {
 
 using namespace std;
 
-string HelloWorld() {
+string ${projectName}::HelloWorld() 
+{
     return "Hello, World!";
 }
 `;
