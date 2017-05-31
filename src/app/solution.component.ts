@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Project } from './models';
+import { Project, CMAKE_PACKAGE_TO_NAME } from './models';
 import { ProjectService } from './project.service';
 
 @Component({
@@ -39,6 +39,14 @@ export class SolutionComponent implements OnInit {
       .then(() => this.displayedSolutionName = this.solutionName);
   }
 
+  projectName(project: Project): string {
+    if(project.kind === 'thirdparty' && project.source.kind === 'findpackage') {
+      return CMAKE_PACKAGE_TO_NAME[project.source.package];
+    }
+
+    return project.name;
+  }
+
   onSelect(project: Project): void {
     this.selectedProject = project;
   }
@@ -52,13 +60,12 @@ export class SolutionComponent implements OnInit {
   }
 
   onDeleteProject(project: Project): void {
+
     this.projectService.deleteProject(project.id)
       .then(() => this.projectService.getProjects())
       .then(projects => {
         this.projects = projects;
-        if(this.selectedProject.id === project.id) {
-          this.selectedProject = null;
-        }
+
       });
   }
 }

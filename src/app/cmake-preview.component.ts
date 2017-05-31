@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, AfterViewInit } from '@angular/core';
-import { Project, ProjectType } from './models';
+import { Project } from './models';
 import { ProjectService } from './project.service';
 import { Tree } from './tree-view.component';
 
@@ -82,7 +82,7 @@ export class CMakePreviewComponent implements OnInit, AfterViewInit {
           children: []
         }];
 
-      if(project.type == ProjectType.Executable) {
+      if(project.kind === "executable") {
         children.push({
           id: project.id,
           value: "main.cpp",

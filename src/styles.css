@@ -14,9 +14,17 @@ body {
   margin: 2em;
 }
 /* #enddocregion quickstart */
+input {
+  height: 2em;
+  font-size: 1em;
+  padding-left: .4em;
+}
 body, input[text], button {
   color: #888;
   font-family: Cambria, Georgia;
+}
+input[type="checkbox"] {
+  height: auto;
 }
 /* #enddocregion toh */
 a {

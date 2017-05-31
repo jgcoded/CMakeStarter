@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, Params } from '@angular/router';
 import { Location } from '@angular/common';
 import 'rxjs/add/operator/switchMap';
 import { ProjectService } from './project.service';
-import { Project, ProjectType } from './models';
+import { Project } from './models';
 
 @Component({
   selector: 'add-dependencies',

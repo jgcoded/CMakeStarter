@@ -1,62 +1,103 @@
 <div *ngIf="project">
 
-  <h2>{{project.name}} details</h2>
+  <div *ngIf="project.kind !== 'thirdparty'">
+    <h2>{{project.name}} details</h2>
 
-  <p>Changes are saved automatically</p>
+    <h3>
+      {{project.kind}}
+    </h3>
 
-  <div>
-    <label>Project Type: </label>
-    <select [(ngModel)]="project.type">
-      <option *ngFor="let type of projectTypeToName; let i=index" [value]="i">{{type}}</option>
-    </select>
-  </div>
-
-  <div>
-    <label>Project Name: </label>
-    <input [(ngModel)]="project.name" placeholder="MyAwesomeProject" />
-  </div>
-
-  <div *ngIf="project.sourceType !== undefined">
-    <label>Where can CMake find this project?</label>
-    <select [(ngModel)]="project.sourceType">
-      <option *ngFor="let type of sourceTypeToName; let i=index" [value]="i">{{type}}</option>
-    </select>
-  </div>
-
-  <div *ngIf="project.location !== undefined">
-    <label>Dependency Location/Name: </label>
-    <input [(ngModel)]="project.location" placeholder="http://some.place" />
-  </div>
-
-  <div *ngIf="project.cmakeArguments !== undefined">
-    <label>CMake Arguments</label>
-    <div *ngFor="let arg of project.cmakeArguments; let i=index">
-      <input size="80" [(ngModel)]="project.cmakeArguments[i]" />
-      <button (click)="removeCMakeArgument(i)">Remove</button>
+    <div>
+      <label>Project Name: </label>
+      <input [(ngModel)]="project.name" placeholder="MyAwesomeProject" />
     </div>
 
-    <button [disabled]="project.cmakeArguments[project.cmakeArguments.length - 1].length === 0" (click)="addCMakeArgument()">Add Argument</button>
+    <div *ngIf="project.kind==='library'">
+      <label>Build as a static library?</label>
+      <input type="checkbox" [(ngModel)]="project.isStaticLibrary" />
+    </div>
+
   </div>
 
-  <div *ngIf="project.configureCommand !== undefined">
-      <label>Configure Command: </label>
-      <textarea rows="10" cols="80" [(ngModel)]="project.configureCommand" placeholder="A command that CMake will execute. e.g., /configure">
-      </textarea>
+  <div *ngIf="project.kind === 'thirdparty'">
+
+    <div *ngIf="project.source.kind !== 'findpackage'">
+      <h2>{{project.name}} details</h2>
+      <label>Project Name: </label>
+      <input [(ngModel)]="project.name" placeholder="MyAwesomeProject" />
+    </div>
+
+    <div *ngIf="project.source.kind === 'file'">
+      <h3>Download</h3>
+      <label>File Location: </label>
+      <input [(ngModel)]="project.source.fileUrl" placeholder="http://some.place" />
+    </div>
+
+    <div *ngIf="project.source.kind === 'vcs'">
+      <div>
+        <label>Version Control: </label>
+        <select [(ngModel)]="project.source.versionControlSystem">
+          <option *ngFor="let vcs of versionControlToName; let i = index" [value]="i">{{vcs}}</option>
+        </select>
+      </div>
+      <div>
+        <label>Repository URL: </label>
+        <input [(ngModel)]="project.source.repoUrl" placeholder="Version control URL" />
+      </div>
+    </div>
+
+    <div *ngIf="project.source.kind === 'findpackage'">
+      <h2>{{cmakePackageToName[project.source.package]}} Package</h2>
+
+      <select [(ngModel)]="project.source.package">
+        <option *ngFor="let package of cmakePackageToName; let i=index" [value]="i">{{package}}</option>
+      </select>
+    </div>
+
+    <div *ngIf="project.buildTool">
+
+      <h3>Build</h3>
+
+      <div *ngIf="project.buildTool.kind === 'cmake'">
+        <label>CMake Arguments</label>
+        <div *ngFor="let arg of project.buildTool.cmakeArguments; let i=index">
+          <input size="80" [(ngModel)]="project.buildTool.cmakeArguments[i]" />
+          <button (click)="removeCMakeArgument(i)">Remove</button>
+        </div>
+
+        <button [disabled]="project.buildTool.cmakeArguments[project.buildTool.cmakeArguments.length - 1].length === 0" (click)="addCMakeArgument()">Add Argument</button>
+      </div>
+
+      <div *ngIf="project.buildTool.kind === 'make'">
+        <label>Configure Command: </label>
+        <textarea rows="10" cols="80" [(ngModel)]="project.buildTool.configureCommand" placeholder="A command that CMake will execute. e.g., /configure">
+        </textarea>
+        <label>Build Command: </label>
+        <textarea rows="10" cols="80" [(ngModel)]="project.buildTool.buildCommand" placeholder="A command that CMake will execute. e.g., make">
+        </textarea>
+        <label>Install Command: </label>
+        <textarea rows="10" cols="80" [(ngModel)]="project.buildTool.installCommand" placeholder="A command that CMake will execute. e.g., make install">
+        </textarea>
+      </div>
+
+      <div>
+        <h3>Build Outputs</h3>
+        <div *ngFor="let lib of project.libraryOutputs; let i = index">
+          <input [(ngModel)]="lib.name" placeholder="Library name w/o prefix or suffix e.g., gtest, mongoc" />
+          <label>Is this a static library?</label>
+          <input type="checkbox" [(ngModel)]="lib.isStaticLibrary" />
+          <button (click)="removeLibraryOutput(i)">Remove</button>
+        </div>
+
+        <button (click)="addLibraryOutput()">Add Output Library</button>
+      </div>
+
+    </div>
+
   </div>
 
-  <div *ngIf="project.buildCommand !== undefined">
-      <label>Build Command: </label>
-      <textarea rows="10" cols="80" [(ngModel)]="project.buildCommand" placeholder="A command that CMake will execute. e.g., make">
-      </textarea>
-  </div>
+  <div *ngIf="project.kind !== 'thirdparty' || project.source.kind !== 'findpackage'">
 
-  <div *ngIf="project.installCommand !== undefined">
-      <label>Install Command: </label>
-      <textarea rows="10" cols="80" [(ngModel)]="project.installCommand" placeholder="A command that CMake will execute. e.g., make install">
-      </textarea>
-  </div>
-
-  <div>
     <label>Dependencies</label>
 
     <project-list [projects]="projectDependencies" (deleteRequest)="onDeleteDependency($event)" deletable="true" (selectRequest)="gotoDependency($event)"></project-list>
@@ -66,6 +107,8 @@
 
     <button class="red" (click)="gotoAddDependencies()">Add Dependencies</button>
   </div>
+
+  <p>Changes are saved automatically</p>
 
   <button (click)="goBack()">Back</button>
 

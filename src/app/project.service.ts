@@ -1,10 +1,18 @@
 import { Injectable } from '@angular/core';
-import { Project, ProjectType, ThirdPartyProject, CMakeThirdPartyProject, MakeThirdPartyProject } from './models';
 import { Solution, DEFAULT_SOLUTION } from './mock-projects';
 import { AdjacencyList, topologicalSort } from './graph';
 
 import * as JSZip from 'jszip';
 import { saveAs } from 'file-saver';
+
+import {
+  Project,
+  ThirdPartyProject,
+  Executable,
+  Library,
+  UserProject
+} from './models';
+
 
 import { 
   GenerateRootCMakeListsTxt,
@@ -36,8 +44,8 @@ export class ProjectService {
   getProjects() : Promise<Array<Project>> {
     return Promise.resolve(
       DEFAULT_SOLUTION.userProjects
-      .concat(DEFAULT_SOLUTION.makeProjects)
-      .concat(DEFAULT_SOLUTION.cmakeProjects));
+        .concat(DEFAULT_SOLUTION.thirdPartyProjects)
+    );
   }
 
   getProject(id: number): Promise<Project> {
@@ -62,21 +70,20 @@ export class ProjectService {
   getCandidateDependencies(id: number): Promise<Array<Project>> {
 
     return this.getProject(id).then(
-      project => (<ThirdPartyProject>project).location !== undefined
+      project => project.kind === 'thirdparty'
     )
     .then(isThirdParty => {
 
       return this.getDependencyIds(id).then((ids: Array<number>) => {
 
-        let projects: Array<Project> = 
-          (<Array<Project>>DEFAULT_SOLUTION.makeProjects).concat(DEFAULT_SOLUTION.cmakeProjects);
+        let projects: Array<Project> = DEFAULT_SOLUTION.thirdPartyProjects;
 
         if(!isThirdParty) {
           projects = projects.concat(DEFAULT_SOLUTION.userProjects);
         }
 
         return projects.filter((project: Project) =>
-          project.type !== ProjectType.Executable && project.id !== id && ids.findIndex(depId => project.id === depId) === -1);
+          project.kind !== 'executable' && project.id !== id && ids.findIndex(depId => project.id === depId) === -1);
       });
     });
   }
@@ -128,9 +135,8 @@ export class ProjectService {
     // get subgraph of third party deps
 
     let subgraph: AdjacencyList = new Map();
-    let thirdParty: Array<ThirdPartyProject> = 
-      (<Array<ThirdPartyProject>>DEFAULT_SOLUTION.makeProjects).concat(DEFAULT_SOLUTION.cmakeProjects);
-
+    let thirdParty: Array<Project> = DEFAULT_SOLUTION.thirdPartyProjects
+      .filter(project => project.kind === 'thirdparty' && project.source.kind !== 'findpackage');
 
     thirdParty.forEach(project => {
       subgraph.set(project.id, DEFAULT_SOLUTION.dependencyGraph.get(project.id));
@@ -175,10 +181,10 @@ export class ProjectService {
           let thirdParty: Array<ThirdPartyProject> = [];
 
           projects.forEach(project => {
-            if((<ThirdPartyProject>project).sourceType === undefined) {
-              subprojects.push(project);
+            if(project.kind === 'thirdparty') {
+              thirdParty.push(project);
             } else {
-              thirdParty.push(<ThirdPartyProject>project);
+              subprojects.push(project);
             }
 
           });
@@ -191,27 +197,11 @@ export class ProjectService {
     return this.getUniqueId()
       .then(id => {
         project.id = id;
-        DEFAULT_SOLUTION.userProjects.push(project);
-        DEFAULT_SOLUTION.dependencyGraph.set(id, []);
-        return id;
-      });
-  }
-
-  addCMakeThirdPartyProject(project: CMakeThirdPartyProject): Promise<number> {
-    return this.getUniqueId()
-      .then(id => {
-        project.id = id;
-        DEFAULT_SOLUTION.cmakeProjects.push(project);
-        DEFAULT_SOLUTION.dependencyGraph.set(id, []);
-        return id;
-      })
-  }
-
-  addMakeThirdPartyProject(project: MakeThirdPartyProject): Promise<number> {
-    return this.getUniqueId()
-      .then(id => {
-        project.id = id;
-        DEFAULT_SOLUTION.makeProjects.push(project);
+        if(project.kind === 'thirdparty') {
+          DEFAULT_SOLUTION.thirdPartyProjects.push(project);
+        } else {
+          DEFAULT_SOLUTION.userProjects.push(project);
+        }
         DEFAULT_SOLUTION.dependencyGraph.set(id, []);
         return id;
       });
@@ -247,16 +237,13 @@ export class ProjectService {
         foundIndex = DEFAULT_SOLUTION.userProjects.findIndex(project => project.id === id);
         if(foundIndex > -1) {
           DEFAULT_SOLUTION.userProjects.splice(foundIndex, 1);
+          return;
         }
 
-        foundIndex = DEFAULT_SOLUTION.makeProjects.findIndex(project => project.id === id);
+        foundIndex = DEFAULT_SOLUTION.thirdPartyProjects.findIndex(project => project.id === id);
         if(foundIndex > -1) {
-          DEFAULT_SOLUTION.makeProjects.splice(foundIndex, 1);
-        }
-
-        foundIndex = DEFAULT_SOLUTION.cmakeProjects.findIndex(project => project.id === id);
-        if(foundIndex > -1) {
-          DEFAULT_SOLUTION.cmakeProjects.splice(foundIndex, 1);
+          DEFAULT_SOLUTION.thirdPartyProjects.splice(foundIndex, 1);
+          return;
         }
       });
   }
@@ -317,7 +304,7 @@ export class ProjectService {
 
               zip.file(`${dir}/CMakeLists.txt`, projectCmake)
 
-              if(project.type == ProjectType.Executable) {
+              if(project.kind === 'executable') {
 
                 let sourceCode: string = GenerateExecutableSourceCodeFile();
                 if(window.navigator.platform === "Win32") {

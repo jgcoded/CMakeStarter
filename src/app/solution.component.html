@@ -12,7 +12,7 @@
 
 <div *ngIf="selectedProject">
   <h2>
-    {{ selectedProject.name | uppercase }} selected
+    {{ projectName(selectedProject) | uppercase }} selected
   </h2>
   <button (click)="gotoDetail()">View Project Details</button>
 </div>

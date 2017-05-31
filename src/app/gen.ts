@@ -3,9 +3,8 @@ import {
   Project,
   ThirdPartySource,
   ThirdPartyProject,
-  ProjectType,
-  MakeThirdPartyProject,
-  CMakeThirdPartyProject
+  VersionControlSystem,
+  CMakePackage
 } from "./models";
 
 export function GenerateRootCMakeListsTxt(solutionName: string): string {
@@ -112,7 +111,17 @@ export function GenerateSubprojectCMakeListsTxt(
 
   let dependenciesList: string = thirdParty.map(
     function (dep: ThirdPartyProject): string {
-      return `    ${dep.name}`;
+
+      let name: string = dep.name;
+      if(dep.source.kind === 'findpackage') {
+        return `    \${${CMakePackage[dep.source.package]}_LIBRARIES}`;
+      }
+
+      if(!dep.libraryOutputs) {
+        return '';
+      }
+
+      return dep.libraryOutputs.map(lib => `    ${lib.name}`).join('\n');
     }
   ).concat(
     userSubProjects.map(
@@ -124,7 +133,11 @@ export function GenerateSubprojectCMakeListsTxt(
 
   let includeDirsList: string = thirdParty.map(
     function (dep: ThirdPartyProject): string {
-      return `    \${${dep.name}_INCLUDE_DIRS}`;
+
+      if(dep.source.kind === 'findpackage') {
+        return `    \${${CMakePackage[dep.source.package]}_INCLUDE_DIRS}`;;
+      }
+      return '';
     }
   ).join('\n');
 
@@ -137,19 +150,19 @@ set(TARGET ${project.name})
 
 # All header files should go here.
 set(HEADERS
-    ${ project.type !== ProjectType.Executable ?
+    ${ project.kind !== 'executable' ?
    `${project.name}.h` : '' }
 )
 
 # All source files should go here.
 set(SOURCES
-    ${ project.type == ProjectType.Executable ?
+    ${ project.kind === 'executable' ?
     'main.cpp': `${project.name}.cpp` }
 )
-${project.type !== ProjectType.Executable ? `
+${ project.kind !== 'executable' ? `
 # This option allows the builder to decide if this project should be built
 # as a static library or a shared library.
-option(${project.name}_STATIC "Build ${project.name} as a static library?" ${project.type == ProjectType.StaticLibrary? 'ON': 'OFF'})
+option(${project.name}_STATIC "Build ${project.name} as a static library?" ${project.kind === 'library' && project.isStaticLibrary ? 'ON': 'OFF'})
 set(BUILD_TYPE )
 set(COMPILE_DEFINITIONS )
 # This if-block sets the appropriate compiler preprocessor macro needed by
@@ -165,7 +178,7 @@ else()
 endif()
 `: ''
 }
-${ project.type == ProjectType.Executable ?
+${ project.kind === 'executable' ?
   `# Add the executable to the build using the headers and sources.
 add_executable(\${TARGET} \${HEADERS} \${SOURCES})`
   :
@@ -185,7 +198,7 @@ ${dependenciesList}
 
 # Add project-specific compiler preprocessor variables here.
 target_compile_definitions(\${TARGET} PUBLIC
-${ project.type !== ProjectType.Executable ?
+${ project.kind !== 'executable' ?
 '\${COMPILE_DEFINITIONS}' : ''
 }
 )
@@ -214,7 +227,7 @@ set_target_properties(\${TARGET} PROPERTIES FOLDER "\${TARGET}")
 # be used by outside projects.
 install(TARGETS \${TARGET}
     EXPORT ${solutionName}
-    COMPONENT ${ project.type == ProjectType.Executable ? "bin" : "lib"}
+    COMPONENT ${ project.kind === 'executable' ? "bin" : "lib"}
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib/static
@@ -225,14 +238,39 @@ install(TARGETS \${TARGET}
 
 function GenerateExternalProjectAddBeginPartial(thirdParty: ThirdPartyProject) {
 
+  let property: string = '';
+  let value: string = 'NOT AVAILABLE';
+
+  if(thirdParty.source.kind === 'file') {
+    property = 'URL';
+    value = thirdParty.source.fileUrl;
+  } else if(thirdParty.source.kind === 'vcs') {
+    let vcs: number = +thirdParty.source.versionControlSystem;
+    switch(vcs) {
+      case VersionControlSystem.Git:
+        property = 'GIT_REPOSITORY';
+      break;
+      case VersionControlSystem.CVS:
+        property = 'CVS_REPOSITORY';
+      break;
+      case VersionControlSystem.SVN:
+        property = 'SVN_REPOSITORY';
+      break;
+      case VersionControlSystem.Mercurial:
+        property = 'HG_REPOSITORY';
+      break;
+      default:
+        console.log('Invalid version control: ' + typeof thirdParty.source.versionControlSystem);
+      break;
+    }
+
+    value = thirdParty.source.repoUrl;
+  }
+
   return `set(SOURCE_DIR \${CMAKE_CURRENT_BINARY_DIR}/${thirdParty.name})
 ExternalProject_add(
     ${thirdParty.name}Download
-    ${
-      thirdParty.sourceType == ThirdPartySource.File ? "URL" :
-      thirdParty.sourceType == ThirdPartySource.Git ? "GIT_REPOSITORY" : ""
-    }
-    ${thirdParty.location}
+    ${property} ${value}
     SOURCE_DIR \${SOURCE_DIR}`;
 }
 
@@ -241,41 +279,51 @@ function GenerateExternalProjectAddEndPartial(
   thirdParty: ThirdPartyProject,
   dependencies: Array<string>): string {
 
-  let projectType: string = "STATIC"
-  let extension: string = "a"
-  if (thirdParty.type == ProjectType.SharedLibrary) {
-    projectType = "SHARED";
-    extension = "so";
-  }
+  let result = ')';
 
-  let dependenciesString: string = dependencies.join(' ');
+  if(thirdParty.libraryOutputs) {
+    thirdParty.libraryOutputs.forEach(outputLib => {
 
-  return `
-)
-set(${thirdParty.name}_BUILD_TYPE ${projectType})
+    let projectType: string = "SHARED"
+    let extension: string = "so"
+    if (outputLib.isStaticLibrary) {
+      projectType = "STATIC";
+      extension = "a";
+    }
+
+    let dependenciesString: string = dependencies.join(' ');
+
+    result += `
+set(${outputLib.name}_BUILD_TYPE ${projectType})
 set(PREFIX lib)
 set(EXTENSION ${extension})
 if(WIN32)
     set(PREFIX )
     set(EXTENSION lib)
 endif()
-add_library(${thirdParty.name} \${${thirdParty.name}_BUILD_TYPE} IMPORTED)
+add_library(${outputLib.name} \${${outputLib.name}_BUILD_TYPE} IMPORTED)
 add_dependencies(${thirdParty.name} ${thirdParty.name}Download ${dependenciesString})
-${ thirdParty.type == ProjectType.Executable ? '' : `
 # NOTE: You may have to change the path specified after IMPORTED_LOCATION if you get
 # a linker error.
-set_target_properties(${thirdParty.name} PROPERTIES
+set_target_properties(${outputLib.name} PROPERTIES
     IMPORTED_LOCATION
-        \${THIRD_PARTY_INSTALL_PREFIX}/lib/\${PREFIX}${thirdParty.name}.\${EXTENSION}
-)` }
+        \${THIRD_PARTY_INSTALL_PREFIX}/lib/\${PREFIX}${outputLib.name}.\${EXTENSION}
+)
 `;
+    });
+  }
+  return result;
 }
 
 export function GenerateCMakeThirdPartyProjectString(
-  cmakeProject: CMakeThirdPartyProject,
+  cmakeProject: ThirdPartyProject,
   dependencies: Array<string>): string {
 
-  let args: string = cmakeProject.cmakeArguments.join('\n\t\t');
+  if(cmakeProject.buildTool.kind !== 'cmake') {
+    throw new Error('Unexpected object: ' + cmakeProject);
+  }
+
+  let args: string = cmakeProject.buildTool.cmakeArguments.join('\n\t\t');
   let beginPartial: string = GenerateExternalProjectAddBeginPartial(cmakeProject);
   let endPartial: string = GenerateExternalProjectAddEndPartial(cmakeProject, dependencies);
   return `
@@ -287,21 +335,22 @@ ${endPartial}
 }
 
 export function GenerateMakeThirdPartyProjectString(
-  makeProject: MakeThirdPartyProject,
+  makeProject: ThirdPartyProject,
   dependencies: Array<string>): string {
+
+  if(makeProject.buildTool.kind !== 'make') {
+    throw new Error('Unexpected object: ' + makeProject);
+  }
+
   let beginPartial: string = GenerateExternalProjectAddBeginPartial(makeProject);
   let endPartial: string = GenerateExternalProjectAddEndPartial(makeProject, dependencies);
   return `
 ${beginPartial}
-    CONFIGURE_COMMAND ${makeProject.configureCommand}
-    BUILD_COMMAND ${makeProject.buildCommand}
-    INSTALL_COMMAND ${makeProject.installCommand}
+    CONFIGURE_COMMAND ${makeProject.buildTool.configureCommand}
+    BUILD_COMMAND ${makeProject.buildTool.buildCommand}
+    INSTALL_COMMAND ${makeProject.buildTool.installCommand}
 ${endPartial}
 `;
-}
-
-function IsCMakeProject(thirdParty: ThirdPartyProject): thirdParty is CMakeThirdPartyProject {
-  return (<CMakeThirdPartyProject>thirdParty).cmakeArguments !== undefined;
 }
 
 export function GenerateThirdPartyCMakeFile(
@@ -311,16 +360,24 @@ export function GenerateThirdPartyCMakeFile(
   let allDependencyStrings: string = "";
 
   dependencies.forEach(thirdParty => {
-    let thirdPartyDeps: Array<string> = dependenciesMap.get(thirdParty.id);
 
-    if (IsCMakeProject(thirdParty)) {
-      allDependencyStrings += GenerateCMakeThirdPartyProjectString(
-        <CMakeThirdPartyProject>thirdParty,
-        thirdPartyDeps);
-    } else {
-      allDependencyStrings += GenerateMakeThirdPartyProjectString(
-        <MakeThirdPartyProject>thirdParty,
-        thirdPartyDeps);
+    if(thirdParty.buildTool) {
+
+      let thirdPartyDeps: Array<string> = dependenciesMap.get(thirdParty.id);
+      switch(thirdParty.buildTool.kind) {
+        case 'cmake':
+          allDependencyStrings +=
+            GenerateCMakeThirdPartyProjectString(thirdParty, thirdPartyDeps);
+        break;
+        case 'make':
+          allDependencyStrings +=
+            GenerateMakeThirdPartyProjectString(thirdParty, thirdPartyDeps);
+        break;
+        default:
+          throw new Error('Unexpected object: ' + thirdParty);
+      }
+    } else { // no build tool - just add the target to download
+      allDependencyStrings += GenerateExternalProjectAddBeginPartial(thirdParty) + ')';
     }
   });
 

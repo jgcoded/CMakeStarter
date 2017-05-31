@@ -3,7 +3,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { Location } from '@angular/common';
 import { ProjectService } from './project.service';
 import 'rxjs/add/operator/switchMap';
-import { Project, ProjectType, CMakeThirdPartyProject, PROJECT_TYPE_TO_NAME, SOURCE_TYPE_TO_NAME } from './models';
+import { Project, VersionControlSystem, CMAKE_PACKAGE_TO_NAME } from './models';
 
 @Component({
     selector: 'project-detail',
@@ -20,11 +20,16 @@ export class ProjectDetailComponent implements OnInit {
     ) {}
 
     project: Project;
-    readonly projectTypeToName: Array<string> = PROJECT_TYPE_TO_NAME;
-    readonly sourceTypeToName: Array<string> = SOURCE_TYPE_TO_NAME;
     projectDependencies: Array<Project>;
+    cmakePackageToName: Array<String> = CMAKE_PACKAGE_TO_NAME;
+
+    versionControlToName: Array<string>;
 
     ngOnInit(): void {
+
+      let keys = Object.keys(VersionControlSystem);
+      this.versionControlToName = keys.splice(keys.length/2);
+
       this.route.params
         .switchMap((params: Params) => this.projectService.getProject(+params['id']))
         .subscribe(project => this.project = project);
@@ -39,15 +44,41 @@ export class ProjectDetailComponent implements OnInit {
     }
 
     addCMakeArgument(): void {
-      if((<CMakeThirdPartyProject>this.project).cmakeArguments !== undefined) {
-        (<CMakeThirdPartyProject>this.project).cmakeArguments.push('');
-        console.log((<CMakeThirdPartyProject>this.project).sourceType);
-      }
+      if(this.project.kind === 'thirdparty'
+          && this.project.buildTool
+          && this.project.buildTool.kind === 'cmake') {
+          
+          this.project.buildTool.cmakeArguments.push('');
+       }
     }
 
     removeCMakeArgument(index: number): void {
-      if((<CMakeThirdPartyProject>this.project).cmakeArguments !== undefined) {
-        (<CMakeThirdPartyProject>this.project).cmakeArguments.splice(index, 1);
+      if(this.project.kind === 'thirdparty'
+          && this.project.buildTool
+          && this.project.buildTool.kind === 'cmake') {
+          
+          this.project.buildTool.cmakeArguments.splice(index, 1);
+       }
+    }
+
+    addLibraryOutput(): void {
+      if(this.project.kind === 'thirdparty') {
+        if(!this.project.libraryOutputs) {
+          this.project.libraryOutputs = [];
+        }
+        this.project.libraryOutputs.push({
+          name: '',
+          isStaticLibrary: true
+        });
+      }
+    }
+
+    removeLibraryOutput(index: number): void {
+      if(this.project.kind === 'thirdparty') {
+        if(!this.project.libraryOutputs) {
+          return;
+        }
+        this.project.libraryOutputs.splice(index, 1);
       }
     }
 

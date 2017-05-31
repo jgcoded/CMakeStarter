@@ -1,43 +1,69 @@
-import { Project, ProjectType, CMakeThirdPartyProject, MakeThirdPartyProject, ThirdPartySource } from './models';
+import { 
+  Project, 
+  CMakePackage,
+  CMAKE_PACKAGE_TO_NAME,
+  ThirdPartyProject,
+  ThirdPartySource, 
+  UserProject} from './models';
 import { AdjacencyList } from './graph';
 
 export interface Solution {
-  solutionName: string,
-  userProjects: Array<Project>,
-  makeProjects: Array<MakeThirdPartyProject>,
-  cmakeProjects: Array<CMakeThirdPartyProject>,
-  dependencyGraph: Map<number, Array<number>>
+  solutionName: string;
+  userProjects: Array<Project>;
+  thirdPartyProjects: Array<Project>;
+  dependencyGraph: Map<number, Array<number>>;
 }
 
 export const DEFAULT_SOLUTION: Solution = {
-  solutionName: "MyProject",
+  solutionName: 'MyProject',
   userProjects: [
-    { id: 0, name: "mylib", type: ProjectType.StaticLibrary },
-    { id: 1, name: "app", type: ProjectType.Executable },
-    { id: 3, name: "tests", type: ProjectType.Executable }
+    { id: 0, kind: 'library', isStaticLibrary: true, name: 'mylib' },
+    { id: 1, kind: 'executable', name: 'app' },
+    { id: 3, kind: 'executable', name: 'tests' }
   ],
-  makeProjects: [],
-  cmakeProjects: [
+  thirdPartyProjects: [
       {
         id: 5,
-        name: "gtest",
-        type: ProjectType.StaticLibrary,
-        sourceType: ThirdPartySource.File,
-        location: "https://github.com/google/googletest/archive/release-1.8.0.tar.gz",
-        cmakeArguments: [
-          "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}",
-          "-DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_INSTALL_PREFIX}"
+        kind: 'thirdparty',
+        name: 'gtest',
+        source: {
+          kind: 'file',
+          fileUrl: 'https://github.com/google/googletest/archive/release-1.8.0.tar.gz'
+        },
+        buildTool: {
+          kind: 'cmake',
+          cmakeArguments: [
+            '-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}',
+            '-DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_INSTALL_PREFIX}'
+          ]
+        },
+        libraryOutputs: [
+          {
+            name: 'gtest',
+            isStaticLibrary: true
+          }
         ]
+      },
+      {
+        id: 6,
+        name: '',
+        kind: 'thirdparty',
+        source: {
+          kind: 'findpackage',
+          package: CMakePackage.Boost
+        }
       }
   ],
   dependencyGraph: new Map<number, Array<number>>([
     // 0 = mylib has no dependencies
     [0, []],
-    // 1 = app depends on mylib
-    [1, [0]],
-    // 3 = tests depend on mylib and gtest
-    [3, [0, 5]],
+    // 1 = app depends on boost and mylib
+    [1, [0, 6]],
+    // 3 = tests depend on mylib, boost, and gtest
+    [3, [0, 5, 6]],
     // 5 = gtest
-    [5, []]
+    [5, []],
+    // 6 = boost - find package dependencies must still be in the graph
+    [6, []]
   ])
 };

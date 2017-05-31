@@ -1,10 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core'
-import { Project, ProjectType } from './models';
-
-const PROJECT_TYPE_TO_BADGE: Array<string> = new Array<string>();
-PROJECT_TYPE_TO_BADGE[ProjectType.Executable] = "EX";
-PROJECT_TYPE_TO_BADGE[ProjectType.SharedLibrary] = "SH";
-PROJECT_TYPE_TO_BADGE[ProjectType.StaticLibrary] = "ST";
+import { Project, CMAKE_PACKAGE_TO_NAME } from './models';
 
 
 @Component({
@@ -21,8 +16,6 @@ export class ProjectListComponent {
   @Output() multiSelectRequest = new EventEmitter<Array<number>>();
   @Output() deleteRequest = new EventEmitter<Project>();
 
-  projectTypeBadges: Array<string> = PROJECT_TYPE_TO_BADGE;
-
   selectedProjects = new Set<number>();
 
   onSelect(project: Project): void {
@@ -35,7 +28,7 @@ export class ProjectListComponent {
       } else {
         this.selectedProjects.add(project.id);
       }
-      
+
       this.multiSelectRequest.emit(Array.from(this.selectedProjects));
 
     } else {
@@ -48,5 +41,13 @@ export class ProjectListComponent {
     if(this.deletable) {
       this.deleteRequest.emit(project)
     }
+  }
+
+  projectName(project: Project): string {
+    if(project.kind === 'thirdparty' && project.source.kind === 'findpackage') {
+      return CMAKE_PACKAGE_TO_NAME[project.source.package];
+    }
+
+    return project.name;
   }
 }

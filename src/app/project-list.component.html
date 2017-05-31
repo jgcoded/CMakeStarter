@@ -2,8 +2,8 @@
   <li *ngFor="let project of projects"
       [class.selected]="selectedProjects.has(project.id)"
       (click)="onSelect(project)">
-        <span class="badge">{{projectTypeBadges[project.type]}}</span>
-      {{project.name}}
+        <span class="badge">{{project.kind}}</span>
+      {{projectName(project)}}
 
       <button *ngIf="deletable" (click)="onDelete(project); $event.stopPropagation()" class="delete">X</button>
   </li>
