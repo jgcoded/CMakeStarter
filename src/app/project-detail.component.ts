@@ -68,7 +68,8 @@ export class ProjectDetailComponent implements OnInit {
         }
         this.project.libraryOutputs.push({
           name: '',
-          isStaticLibrary: true
+          isStaticLibrary: true,
+          outputDirectory: '${THIRD_PARTY_INSTALL_PREFIX}/lib'
         });
       }
     }

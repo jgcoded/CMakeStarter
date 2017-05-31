@@ -65,6 +65,7 @@ export type BuildTool = CMakeBuildTool | MakeBuildTool;
 export interface ThirdPartyLibrary {
   name: string;
   isStaticLibrary: boolean;
+  outputDirectory: string;
 }
 
 // third party projects can produce either shared or static libs

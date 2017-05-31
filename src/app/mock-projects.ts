@@ -40,7 +40,8 @@ export const DEFAULT_SOLUTION: Solution = {
         libraryOutputs: [
           {
             name: 'gtest',
-            isStaticLibrary: true
+            isStaticLibrary: true,
+            outputDirectory: '${THIRD_PARTY_INSTALL_PREFIX}/lib'
           }
         ]
       },

@@ -30,10 +30,11 @@
     <div *ngIf="project.source.kind === 'file'">
       <h3>Download</h3>
       <label>File Location: </label>
-      <input [(ngModel)]="project.source.fileUrl" placeholder="http://some.place" />
+      <input size="80" [(ngModel)]="project.source.fileUrl" placeholder="http://some.place" />
     </div>
 
     <div *ngIf="project.source.kind === 'vcs'">
+      <h3>Acquire</h3>
       <div>
         <label>Version Control: </label>
         <select [(ngModel)]="project.source.versionControlSystem">
@@ -42,7 +43,7 @@
       </div>
       <div>
         <label>Repository URL: </label>
-        <input [(ngModel)]="project.source.repoUrl" placeholder="Version control URL" />
+        <input size="80" [(ngModel)]="project.source.repoUrl" placeholder="Version control URL" />
       </div>
     </div>
 
@@ -79,26 +80,41 @@
         <textarea rows="10" cols="80" [(ngModel)]="project.buildTool.installCommand" placeholder="A command that CMake will execute. e.g., make install">
         </textarea>
       </div>
+    </div>
 
-      <div>
-        <h3>Build Outputs</h3>
-        <div *ngFor="let lib of project.libraryOutputs; let i = index">
+    <div *ngIf="project.source.kind !== 'findpackage'">
+      <h3>Build Outputs</h3>
+      <div *ngFor="let lib of project.libraryOutputs; let i = index">
+        <div>
+          <label>Library Name: </label>
           <input [(ngModel)]="lib.name" placeholder="Library name w/o prefix or suffix e.g., gtest, mongoc" />
+        </div>
+        <div>
           <label>Is this a static library?</label>
           <input type="checkbox" [(ngModel)]="lib.isStaticLibrary" />
-          <button (click)="removeLibraryOutput(i)">Remove</button>
+        </div>
+        <div>
+          <label>Expected Output Directory:</label>
+          <input size="80" [(ngModel)]="lib.outputDirectory" placeholder="In what directory can the library be found?" />
+        </div>
+        <div>
+          Directory where CMake will attempt to find the library file:
+          {{ lib.outputDirectory }}/{{ '${PREFIX}' }}{{lib.name}}.{{'${EXTENSION}' }}
         </div>
 
-        <button (click)="addLibraryOutput()">Add Output Library</button>
+        <button (click)="removeLibraryOutput(i)">Remove</button>
+        <hr >
       </div>
 
+      <button (click)="addLibraryOutput()">Add Output Library</button>
     </div>
+
 
   </div>
 
   <div *ngIf="project.kind !== 'thirdparty' || project.source.kind !== 'findpackage'">
 
-    <label>Dependencies</label>
+    <h3>Dependencies</h3>
 
     <project-list [projects]="projectDependencies" (deleteRequest)="onDeleteDependency($event)" deletable="true" (selectRequest)="gotoDependency($event)"></project-list>
     <div *ngIf="projectDependencies.length === 0">

@@ -307,7 +307,7 @@ add_dependencies(${thirdParty.name} ${thirdParty.name}Download ${dependenciesStr
 # a linker error.
 set_target_properties(${outputLib.name} PROPERTIES
     IMPORTED_LOCATION
-        \${THIRD_PARTY_INSTALL_PREFIX}/lib/\${PREFIX}${outputLib.name}.\${EXTENSION}
+        ${outputLib.outputDirectory}/\${PREFIX}${outputLib.name}.\${EXTENSION}
 )
 `;
     });
