@@ -338,7 +338,7 @@ if(WIN32)
     set(EXTENSION lib)
 endif()
 add_library(${outputLib.name} \${${outputLib.name}_BUILD_TYPE} IMPORTED)
-add_dependencies(${thirdParty.name} ${thirdParty.name}Download ${dependenciesString})
+add_dependencies(${outputLib.name} ${thirdParty.name}Download ${dependenciesString})
 # NOTE: You may have to change the path specified after IMPORTED_LOCATION if you get
 # a linker error.
 set_target_properties(${outputLib.name} PROPERTIES
