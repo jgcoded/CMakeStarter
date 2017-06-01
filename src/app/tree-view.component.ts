@@ -11,13 +11,15 @@ export type Tree = {
   template: `
 
 <li>
-<div [class.bold]="hasChildren()" (click)="nodeSelected()">
+<div (click)="nodeSelected()">
+
   <span *ngIf="hasChildren()" >
-    <md-icon md-list-icon *ngIf="expanded">folder_open</md-icon>
-    <md-icon md-list-icon *ngIf="!expanded">folder</md-icon>
+    <md-icon *ngIf="expanded">folder_open</md-icon>
+    <md-icon *ngIf="!expanded">folder</md-icon>
   </span>
-  <md-icon md-list-icon *ngIf="!hasChildren()">description</md-icon>
-  {{tree.value.toString()}}
+  <md-icon *ngIf="!hasChildren()">description</md-icon>
+  <span>{{tree.value.toString()}}</span>
+
 </div>
 
   <ul *ngIf="expanded">
@@ -38,6 +40,9 @@ ul {
   padding-left: 1em;
   line-height: 1.5em;
   list-style-type: none;
+}
+md-icon {
+  vertical-align: text-bottom;
 }
   `]
 })

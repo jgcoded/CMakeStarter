@@ -24,3 +24,6 @@ pre {
 ul {
   list-style-type: none;
 }
+md-icon {
+  vertical-align: text-bottom;
+}
