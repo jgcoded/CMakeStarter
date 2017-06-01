@@ -1,7 +1,7 @@
 
 <div class="download">
   Happy with the results? <br />
-  <button class="red" (click)="generateZip()">Download the zip file!</button>
+  <button md-raised-button (click)="generateZip()">Download the zip file!</button>
 </div>
 
 <div>
@@ -12,6 +12,7 @@
       <tree-view class="node" [tree]="tree" [onNodeSelected]="onNodeSelectedEvent"></tree-view>
     </ul>
   </div>
+
   <div class="preview">
     Select a CMake file on the left to view its preview here
     <h4>{{previewTitle}}</h4>

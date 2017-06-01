@@ -6,7 +6,7 @@ import * as CodeMirror from 'codemirror';
   selector: 'code-mirror',
   template: `
   <textarea #code></textarea>
-`
+`,
 })
 export class CodeMirrorComponent implements OnInit, AfterViewInit {
 

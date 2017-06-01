@@ -1,20 +1,15 @@
 <h2>Solution</h2>
 
 <h3>{{displayedSolutionName}}</h3>
-<div>
-  <label>Solution name: </label><input type="text" [(ngModel)]="solutionName" />
-  <button (click)="updateSolutionName()">Update</button>
-</div>
+<md-input-container>
+  <input mdInput placeholder="Solution Name" [(ngModel)]="solutionName" />
+</md-input-container>
+<button md-button (click)="updateSolutionName()">Update</button>
 
 <h2>All Projects</h2>
 
-<project-list [projects]="projects" (selectRequest)="onSelect($event)" (deleteRequest)="onDeleteProject($event)" deletable="true"></project-list>
+<project-list [projects]="projects" (deleteRequest)="onDeleteProject($event)" editable="true" deletable="true"></project-list>
 
-<div *ngIf="selectedProject">
-  <h2>
-    {{ projectName(selectedProject) | uppercase }} selected
-  </h2>
-  <button (click)="gotoDetail()">View Project Details</button>
+<div>
+  <a md-raised-button (click)="gotoAddProject()">Add New Project</a>
 </div>
-
-<button class="red" (click)="gotoAddProject()">Add New Project</button>

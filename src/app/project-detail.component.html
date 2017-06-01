@@ -6,15 +6,13 @@
     </h3>
 
   <div *ngIf="project.name">
-    <div>
-      <label>Project Name: </label>
-      <input [(ngModel)]="project.name" placeholder="MyAwesomeProject" />
-    </div>
+    <md-input-container>
+      <input mdInput [(ngModel)]="project.name" placeholder="Project Name" />
+    </md-input-container>
   </div>
 
   <div *ngIf="project.kind==='library'">
-    <label>Build as a static library?</label>
-    <input type="checkbox" [(ngModel)]="project.isStaticLibrary" />
+    <md-checkbox type="checkbox" [(ngModel)]="project.isStaticLibrary">Build as a static library</md-checkbox>
   </div>
 
 
@@ -22,22 +20,23 @@
 
     <div *ngIf="project.source.kind === 'file'">
       <h3>Download</h3>
-      <label>File Location: </label>
-      <input size="80" [(ngModel)]="project.source.fileUrl" placeholder="http://some.place" />
+
+      <md-input-container>
+        <input mdInput type="url" mdInput size="80" [(ngModel)]="project.source.fileUrl" placeholder="File URL" />
+      </md-input-container>
     </div>
 
     <div *ngIf="project.source.kind === 'vcs'">
-      <h3>Acquire</h3>
+
       <div>
-        <label>Version Control: </label>
-        <select [(ngModel)]="project.source.versionControlSystem">
-          <option *ngFor="let vcs of versionControlToName; let i = index" [value]="i">{{vcs}}</option>
-        </select>
+      <md-select placeholder="Version Control System" [(ngModel)]="project.source.versionControlSystem">
+        <md-option *ngFor="let vcs of versionControlToName; let i = index" [value]="i">{{vcs}}</md-option>
+      </md-select>
       </div>
-      <div>
-        <label>Repository URL: </label>
-        <input size="80" [(ngModel)]="project.source.repoUrl" placeholder="Version control URL" />
-      </div>
+
+      <md-input-container>
+        <input mdInput size="80" [(ngModel)]="project.source.repoUrl" placeholder="Version control URL" />
+      </md-input-container>
     </div>
 
     <p>
@@ -76,30 +75,41 @@
     </table>
 
 
+    <h3>Build</h3>
+    <div *ngIf="!project.buildTool">
+      No Build Tool
+    </div>
     <div *ngIf="project.buildTool">
-
-      <h3>Build</h3>
 
       <div *ngIf="project.buildTool.kind === 'cmake'">
         <label>CMake Arguments</label>
-        <div *ngFor="let arg of project.buildTool.cmakeArguments; let i=index; trackBy: trackStringArray">
-          <input size="80" [(ngModel)]="project.buildTool.cmakeArguments[i]" />
-          <button (click)="removeCMakeArgument(i)">Remove</button>
-        </div>
-
-        <button [disabled]="project.buildTool.cmakeArguments[project.buildTool.cmakeArguments.length - 1].length === 0" (click)="addCMakeArgument()">Add Argument</button>
+        <md-list>
+          <md-list-item *ngFor="let arg of project.buildTool.cmakeArguments; let i=index; trackBy: trackStringArray">
+            <md-input-container>
+              <input mdInput size="80" placeholder="Argument" [(ngModel)]="project.buildTool.cmakeArguments[i]" />
+            </md-input-container>
+            <button md-button (click)="removeCMakeArgument(i)">REMOVE</button>
+          </md-list-item>
+        </md-list>
+        <button md-raised-button [disabled]="project.buildTool.cmakeArguments[project.buildTool.cmakeArguments.length - 1].length === 0" (click)="addCMakeArgument()">Add Argument</button>
       </div>
 
       <div *ngIf="project.buildTool.kind === 'make'">
-        <label>Configure Command: </label>
-        <textarea rows="10" cols="80" [(ngModel)]="project.buildTool.configureCommand" placeholder="A command that CMake will execute. e.g., /configure">
-        </textarea>
-        <label>Build Command: </label>
-        <textarea rows="10" cols="80" [(ngModel)]="project.buildTool.buildCommand" placeholder="A command that CMake will execute. e.g., make">
-        </textarea>
-        <label>Install Command: </label>
-        <textarea rows="10" cols="80" [(ngModel)]="project.buildTool.installCommand" placeholder="A command that CMake will execute. e.g., make install">
-        </textarea>
+
+        <md-input-container>
+          <textarea mdInput rows="10" cols="80" [(ngModel)]="project.buildTool.configureCommand" placeholder="Configure Command">
+          </textarea>
+        </md-input-container>
+
+        <md-input-container>
+          <textarea mdInput rows="10" cols="80" [(ngModel)]="project.buildTool.buildCommand" placeholder="Build Command">
+          </textarea>
+        </md-input-container>
+
+        <md-input-container>
+          <textarea mdInput rows="10" cols="80" [(ngModel)]="project.buildTool.installCommand" placeholder="Install Command">
+          </textarea>
+        </md-input-container>
       </div>
     </div>
 
@@ -110,75 +120,80 @@
       If that happens you can manually edit the path later.
       You should still try and provide a library so that the CMake code is generated.
     </p>
-    <div *ngFor="let lib of project.libraryOutputs; let i = index">
+    <md-card *ngFor="let lib of project.libraryOutputs; let i = index">
+      
+      <md-input-container>
+        <input mdInput [(ngModel)]="lib.name" placeholder="Library Name" />
+      </md-input-container>
+
       <div>
-        <label>Library Name: </label>
-        <input [(ngModel)]="lib.name" placeholder="Library name w/o prefix or suffix e.g., gtest, mongoc" />
+        <md-checkbox [(ngModel)]="lib.isStaticLibrary">Library is static</md-checkbox>
       </div>
-      <div>
-        <label>Is this a static library?</label>
-        <input type="checkbox" [(ngModel)]="lib.isStaticLibrary" />
-      </div>
-      <div>
-        <label>Expected Output Directory:</label>
-        <input size="80" [(ngModel)]="lib.outputDirectory" placeholder="In what directory can the library be found?" />
-      </div>
-      <div>
+
+      <md-input-container>
+        <input mdInput size="80" [(ngModel)]="lib.outputDirectory" placeholder="In what directory can the library be found?" />
+      </md-input-container>
+
+      <p>
         Directory where CMake will attempt to find the library file:
         {{ lib.outputDirectory }}/{{ '${PREFIX}' }}{{lib.name}}.{{'${EXTENSION}' }}
-      </div>
+      </p>
+      <md-card-actions>
+        <button md-button (click)="removeLibraryOutput(i)">REMOVE</button>
+      </md-card-actions>
 
-      <button (click)="removeLibraryOutput(i)">Remove</button>
-      <hr >
-    </div>
+    </md-card>
 
-    <button (click)="addLibraryOutput()">Add Output Library</button>
+    <button md-raised-button (click)="addLibraryOutput()">Add Output Library</button>
 
   </div>
 
   <div *ngIf="project.kind === 'findpackage'">
-    <select [(ngModel)]="project.package">
-      <option *ngFor="let package of cmakePackageToName; let i=index" [value]="i">{{package}}</option>
-    </select>
+    <md-select [(ngModel)]="project.package">
+      <md-option *ngFor="let package of cmakePackageToName; let i=index" [value]="i">{{package}}</md-option>
+    </md-select>
 
     <div>
-      <label>Is this package required?</label>
-      <input [(ngModel)]="project.required" type="checkbox" />
+      <md-checkbox [(ngModel)]="project.required" type="checkbox">Required Package</md-checkbox>
+    </div>
+
+    <md-input-container>
+      <input mdInput [(ngModel)]="project.version" placeholder="Package Version (Major.Minor.Revision)" />
+    </md-input-container>
+
+    <div>
+      <md-checkbox [(ngModel)]="project.exact" type="checkbox">Package version must match exactly</md-checkbox>
     </div>
 
     <div>
-      <label>Package Version (Major.Minor.Revision):</label>
-      <input [(ngModel)]="project.version" placeholder="Leave empty if not required" />
-    </div>
-
-    <div>
-      <label>Must the version match exactly?</label>
-      <input [(ngModel)]="project.exact" type="checkbox" />
-    </div>
-
-    <div>
-      <label>Should CMake print an error if the package is not found?</label>
-      <input [(ngModel)]="project.quiet" type="checkbox" />
+      <md-checkbox [(ngModel)]="project.quiet" type="checkbox">Don't print an error if the package is missing</md-checkbox>
     </div>
 
     <div>
       <label>Components</label>
-      <div *ngFor="let comp of project.components; let i = index; trackBy: trackStringArray">
-        <input [(ngModel)]="project.components[i]" />
-        <button (click)="removeComponent(i)">Remove</button>
-      </div>
+      <md-list>
+        <md-list-item *ngFor="let comp of project.components; let i = index; trackBy: trackStringArray">
+          <md-input-container>
+            <input mdInput placeholder="Component Name" [(ngModel)]="project.components[i]" />
+          </md-input-container>
+          <button md-button (click)="removeComponent(i)">Remove</button>
+        </md-list-item>
+      </md-list>
 
-      <button (click)="addComponent()">Add Component</button>
+      <button md-raised-button (click)="addComponent()">Add Component</button>
     </div>
  
     <div>
       <label>Optional Components</label>
-      <div *ngFor="let comp of project.optionalComponents; let i = index; trackBy: trackStringArray">
-        <input [(ngModel)]="project.optionalComponents[i]" />
-        <button (click)="removeOptionalComponent(i)">Remove</button>
-      </div>
-
-      <button (click)="addOptionalComponent()">Add Component</button>
+      <md-list>
+        <md-list-item *ngFor="let comp of project.optionalComponents; let i = index; trackBy: trackStringArray">
+          <md-input-container>
+            <input mdInput [(ngModel)]="project.optionalComponents[i]" />
+          </md-input-container>
+          <button md-button (click)="removeOptionalComponent(i)">Remove</button>
+        </md-list-item>
+      </md-list>
+      <button md-raised-button (click)="addOptionalComponent()">Add Component</button>
   
     </div>
 
@@ -188,16 +203,19 @@
 
     <h3>Dependencies</h3>
 
-    <project-list [projects]="projectDependencies" (deleteRequest)="onDeleteDependency($event)" deletable="true" (selectRequest)="gotoDependency($event)"></project-list>
+    <project-list [projects]="projectDependencies" (deleteRequest)="onDeleteDependency($event)" editable="true" deletable="true"></project-list>
+
     <div *ngIf="projectDependencies.length === 0">
       No Dependencies
     </div>
 
-    <button class="red" (click)="gotoAddDependencies()">Add Dependencies</button>
+    <div>
+      <a md-raised-button (click)="gotoAddDependencies()">Add Dependencies</a>
+    </div>
   </div>
 
   <p>Changes are saved automatically</p>
 
-  <button (click)="goBack()">Back</button>
+  <a md-raised-button (click)="goBack()">Back</a>
 
 </div>

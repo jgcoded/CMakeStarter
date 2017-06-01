@@ -12,8 +12,12 @@ export type Tree = {
 
 <li>
 <div [class.bold]="hasChildren()" (click)="nodeSelected()">
+  <span *ngIf="hasChildren()" >
+    <md-icon md-list-icon *ngIf="expanded">folder_open</md-icon>
+    <md-icon md-list-icon *ngIf="!expanded">folder</md-icon>
+  </span>
+  <md-icon md-list-icon *ngIf="!hasChildren()">description</md-icon>
   {{tree.value.toString()}}
-  <span *ngIf="hasChildren()" >{{ expanded ? "-" : "+" }}</span>
 </div>
 
   <ul *ngIf="expanded">
@@ -33,7 +37,7 @@ export type Tree = {
 ul {
   padding-left: 1em;
   line-height: 1.5em;
-  list-style-type: circle;
+  list-style-type: none;
 }
   `]
 })

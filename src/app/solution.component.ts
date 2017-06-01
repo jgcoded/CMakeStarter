@@ -2,22 +2,28 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Project, CMAKE_PACKAGE_TO_NAME } from './models';
 import { ProjectService } from './project.service';
+import { MdDialog, MdDialogRef } from '@angular/material';
+import { ConfirmDialogComponent } from './confirm-dialog.component';
 
 @Component({
   selector: 'solution',
   templateUrl: './solution.component.html',
   styles: [`
 
-button {
-  margin: 1em;
+a {
+  margin-top: 1em;
 }
-`]
+`],
+  entryComponents: [
+    ConfirmDialogComponent
+  ]
 })
 export class SolutionComponent implements OnInit {
 
   constructor(
     private projectService: ProjectService,
-    private router : Router
+    private router : Router,
+    private dialog: MdDialog
   ) {}
 
   projects : Array<Project>;
@@ -51,21 +57,21 @@ export class SolutionComponent implements OnInit {
     this.selectedProject = project;
   }
 
-  gotoDetail(): void {
-    this.router.navigate(['/detail', this.selectedProject.id]);
-  }
-
   gotoAddProject(): void {
     this.router.navigate(['/add-project']);
   }
 
   onDeleteProject(project: Project): void {
 
-    this.projectService.deleteProject(project.id)
-      .then(() => this.projectService.getProjects())
-      .then(projects => {
-        this.projects = projects;
-
-      });
+    let dialogRef = this.dialog.open(ConfirmDialogComponent);
+    dialogRef.afterClosed().subscribe(result => {
+      if(result == true) {
+      this.projectService.deleteProject(project.id)
+        .then(() => this.projectService.getProjects())
+        .then(projects => {
+          this.projects = projects;
+        });
+      }
+    });
   }
 }

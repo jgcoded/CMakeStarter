@@ -22,72 +22,10 @@ import {
 
 @Component({
   selector: 'add-project',
-  template: `
-
-<h2>Add a project</h2>
-
-<div>
-  <input id="thirdPartyCheckBox" type="checkbox" [(ngModel)]="isThirdPartyProject" />
-  <label>Is this a third party dependency?</label>
-</div>
-
-<div *ngIf="isThirdPartyProject">
-
-  <div>
-  <label>How should CMake obtain this project?</label>
-  <select [(ngModel)]="projectSource">
-    <option value="vcs">Version Control</option>
-    <option value="file">Archive File</option>
-    <option value="findpackage">CMake FindPackage</option>
-  </select>
-  </div>
-
-  <div *ngIf="projectSource!=='findpackage'">
-    <label>How should CMake build this project?</label>
-    <select [(ngModel)]="projectBuildTool">
-      <option value="none">None - No build necessary</option>
-      <option value="cmake">CMake-based build</option>
-      <option value="make">Script-based build</option>
-    </select>
-  </div>
-
-  <div *ngIf="projectSource==='findpackage'">
-    <label>Select the CMake package</label>
-    <select [(ngModel)]="cmakePackage">
-      <option *ngFor="let package of cmakePackageToName; let i=index" [value]="i">{{package}}</option>
-    </select>
-  </div>
-</div>
-
-<div *ngIf="!isThirdPartyProject">
-  <div>
-    <label>Project Name: </label>
-    <input [(ngModel)]="projectName" placeholder="A project name" />
-  </div>
-
-  <div>
-    <label>Is this a library?: </label>
-    <input type="checkbox" [(ngModel)]="isLibrary" />
-  </div>
-</div>
-
-
-<button (click)="cancel()">Cancel</button>  
-<button class="red" (click)="submit()">Submit</button>
-
-`,
+  templateUrl: './add-project.component.html',
   styles: [`
-label {
-  display: inline-block;
-  margin: .5em 0;
-  color: #607D8B;
-  font-weight: bold;
-}
-select {
-  margin-bottom: 1em;
-}
-button {
-  margin: 1em;
+md-select {
+  margin-top: 1.5em;
 }
 `]
 })
@@ -100,8 +38,8 @@ export class AddProjectComponent {
   ){}
 
   projectName: string;
-  projectSource: string = "vcs";
-  projectBuildTool: string = "none";
+  projectSource: string;
+  projectBuildTool: string;
   isThirdPartyProject: boolean = false;
   isLibrary: boolean = false;
   cmakePackage: CMakePackage = CMakePackage.Boost;

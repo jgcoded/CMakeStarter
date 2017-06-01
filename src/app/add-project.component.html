@@ -1,0 +1,44 @@
+
+<h2>Add a project</h2>
+
+<md-checkbox [(ngModel)]="isThirdPartyProject">Third Party Dependency</md-checkbox>
+
+<div *ngIf="isThirdPartyProject">
+
+  <div>
+    <md-select placeholder="Project Source" [(ngModel)]="projectSource">
+      <md-option value="vcs">Version Control</md-option>
+      <md-option value="file">Archive File</md-option>
+      <md-option value="findpackage">CMake FindPackage</md-option>
+    </md-select>
+  </div>
+
+  <div *ngIf="projectSource!=='findpackage'">
+    <md-select placeholder="Build Tool" [(ngModel)]="projectBuildTool">
+      <md-option value="none">None - No build necessary</md-option>
+      <md-option value="cmake">CMake-based build</md-option>
+      <md-option value="make">Script-based build</md-option>
+    </md-select>
+  </div>
+
+  <div *ngIf="projectSource==='findpackage'">
+    <md-select placeholder="Select the CMake package" [(ngModel)]="cmakePackage">
+      <md-option *ngFor="let package of cmakePackageToName; let i=index" [value]="i">{{package}}</md-option>
+    </md-select>
+  </div>
+</div>
+
+<div *ngIf="!isThirdPartyProject">
+  
+  <md-input-container>
+    <input mdInput [(ngModel)]="projectName" placeholder="Project Name" />
+  </md-input-container>
+
+  <div>
+    <md-checkbox [(ngModel)]="isLibrary">This project is a library</md-checkbox>
+  </div>
+</div>
+
+
+<button md-raised-button (click)="cancel()">Cancel</button>  
+<button md-raised-button (click)="submit()">Submit</button>

@@ -1,6 +1,12 @@
-<h1>CMake Starter</h1>
-<nav>
-  <a routerLink="/cmake-preview" routerLinkActive="active">CMake Preview</a>
-  <a routerLink="/solution" routerLinkActive="active">Solution</a>
+
+<md-toolbar color="primary">CMake Starter</md-toolbar>
+<nav md-tab-nav-bar>
+  <a md-tab-link
+    *ngFor="let link of navigationLinks"
+    [routerLink]="link.route"
+    routerLinkActive #rla="routerLinkActive"
+    [active]="rla.isActive">
+    {{ link.label }}
+  </a>
 </nav>
 <router-outlet></router-outlet>

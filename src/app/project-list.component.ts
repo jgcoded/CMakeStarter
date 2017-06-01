@@ -1,22 +1,37 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core'
+import { Router } from "@angular/router";
 import { Project, CMAKE_PACKAGE_TO_NAME } from './models';
 
 
 @Component({
   selector: 'project-list',
   templateUrl: './project-list.component.html',
-  styleUrls: ['./project-list.component.css']
+  styles: [`
+.project-card {
+  width: 200px;
+  display: inline-block;
+}
+
+.project-card .selected {
+  
+}
+  `]
 })
 export class ProjectListComponent {
   
   @Input() projects: Array<Project>;
   @Input() multiselect: boolean = false;
   @Input() deletable: boolean = false;
+  @Input() editable: boolean = false;
   @Output() selectRequest = new EventEmitter<Project>();
   @Output() multiSelectRequest = new EventEmitter<Array<number>>();
   @Output() deleteRequest = new EventEmitter<Project>();
 
   selectedProjects = new Set<number>();
+
+  constructor(
+    private router: Router
+  ) {}
 
   onSelect(project: Project): void {
     this.selectRequest.emit(project);
@@ -49,5 +64,9 @@ export class ProjectListComponent {
     }
 
     return project.name;
+  }
+
+  gotoProjectDetails(project: Project): void {
+    this.router.navigate(['/detail', project.id]);
   }
 }

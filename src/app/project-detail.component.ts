@@ -8,7 +8,12 @@ import { Project, VersionControlSystem, CMAKE_PACKAGE_TO_NAME } from './models';
 @Component({
     selector: 'project-detail',
     templateUrl: './project-detail.component.html',
-    styleUrls: ['./project-detail.component.css']
+    styles: [`
+button {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+  `]
 })
 export class ProjectDetailComponent implements OnInit {
 

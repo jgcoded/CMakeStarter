@@ -34,10 +34,10 @@ export class CMakePreviewComponent implements OnInit, AfterViewInit {
     }
 
   tree: Tree = {
-    value: "Project Root/",
+    value: "Project Root",
     children: [
       {
-        value: "cmake/",
+        value: "cmake",
         children: [
           {
             id: this.THIRDPARTY_CMAKE_NODE_ID,
@@ -47,7 +47,7 @@ export class CMakePreviewComponent implements OnInit, AfterViewInit {
         ]
       },
       {
-        value: "src/",
+        value: "src",
         children: []
       },
       {

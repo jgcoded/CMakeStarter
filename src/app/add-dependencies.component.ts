@@ -14,10 +14,13 @@ import { Project } from './models';
 <project-list [projects]="candidateDependencies" (multiSelectRequest)="onMultiSelect($event)" multiselect="true"></project-list>
 </div>
 
-<button class="red" (click)="done()">Add selected dependencies</button>
-<button (click)="goBack()">Back</button>
+<button md-raised-button (click)="done()">Add selected dependencies</button>
+<a md-raised-button  (click)="goBack()">Back</a>
 `,
   styles: [`
+button {
+  margin: 1em;
+}
   `]
 })
 export class AddDependenciesComponent implements OnInit {
