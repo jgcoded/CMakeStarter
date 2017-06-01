@@ -20,6 +20,7 @@ import { Project, CMAKE_PACKAGE_TO_NAME } from './models';
 export class ProjectListComponent {
   
   @Input() projects: Array<Project>;
+  @Input() selectable: boolean = false;
   @Input() multiselect: boolean = false;
   @Input() deletable: boolean = false;
   @Input() editable: boolean = false;

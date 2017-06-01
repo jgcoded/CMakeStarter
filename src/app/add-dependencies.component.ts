@@ -11,7 +11,7 @@ import { Project } from './models';
 
 <div>
 <h2>Select the dependencies to add to the <span *ngIf="project">{{project.name}}</span> project</h2>
-<project-list [projects]="candidateDependencies" (multiSelectRequest)="onMultiSelect($event)" multiselect="true"></project-list>
+<project-list [projects]="candidateDependencies" selectable="true" (multiSelectRequest)="onMultiSelect($event)" multiselect="true"></project-list>
 </div>
 
 <button md-raised-button (click)="done()">Add selected dependencies</button>

@@ -4,7 +4,7 @@
 
     <md-card-title>
       {{projectName(project)}}
-      <span *ngIf="selectedProjects.has(project.id)"> <b>Selected</b></span>
+      <span *ngIf="selectable == 'true' && selectedProjects.has(project.id)"> <b>Selected</b></span>
     </md-card-title>
 
     <md-card-subtitle>
