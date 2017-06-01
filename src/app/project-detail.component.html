@@ -15,8 +15,9 @@
     <md-checkbox type="checkbox" [(ngModel)]="project.isStaticLibrary">Build as a static library</md-checkbox>
   </div>
 
-
   <div *ngIf="project.kind === 'thirdparty'">
+
+    <md-divider></md-divider>
 
     <div *ngIf="project.source.kind === 'file'">
       <h3>Download</h3>
@@ -39,43 +40,45 @@
       </md-input-container>
     </div>
 
-    <p>
-      You can use CMake variables in the following <b>Build</b> and <b>Build Outputs</b> sections.
-      The CMake variables listed in the table below might be useful.
-      Some of the variables are created by this tool.
-      You can use these variables to customize the build.
-    </p>
-    <table>
-      <tr>
-        <td>Variable Name</td>
-        <td>Description</td>
-      </tr>
-      <tr>
-        <td>CMAKE_BUILD_TYPE</td>
-        <td>Specifies the build type (Debug, Release, etc)</td>
-      </tr>
-      <tr>
-        <td>THIRD_PARTY_INSTALL_PREFIX</td>
-        <td>The directory where all third party projects should install their outputs</td>
-      </tr>
-      <tr>
-        <td>SOURCE_DIR</td>
-        <td>The root directory where this project was downloaded/extracted to</td>
-      </tr>
-      <tr>
-        <td>PREFIX</td>
-        <td>A platform-dependent prefix. On Unix this is lib, on Windows this is blank</td>
-      </tr>
-      <tr>
-        <td>EXTENSION</td>
-        <td>A platform and library type dependent suffix. On unix this is either .a or .so,
-            On windows this is always .lib
-        </td>
-      </tr>
-    </table>
-
+    <md-divider></md-divider>
 
     <h3>Build</h3>
+    <div class="info">
+      <md-icon>info_outline</md-icon>
+      <p>
+        You can use CMake variables in the following <b>Build</b> and <b>Build Outputs</b> sections.
+        The CMake variables listed in the table below might be useful.
+        Some of the variables are created by this tool.
+        You can use these variables to customize the build.
+      </p>
+      <table>
+        <th>Variable Name</th>
+        <th>Description</th>
+        <tr>
+          <td>CMAKE_BUILD_TYPE</td>
+          <td>Specifies the build type (Debug, Release, etc)</td>
+        </tr>
+        <tr>
+          <td>THIRD_PARTY_INSTALL_PREFIX</td>
+          <td>The directory where all third party projects should install their outputs</td>
+        </tr>
+        <tr>
+          <td>SOURCE_DIR</td>
+          <td>The root directory where this project was downloaded/extracted to</td>
+        </tr>
+        <tr>
+          <td>PREFIX</td>
+          <td>A platform-dependent prefix. On Unix this is lib, on Windows this is blank</td>
+        </tr>
+        <tr>
+          <td>EXTENSION</td>
+          <td>A platform and library type dependent suffix. On unix this is either .a or .so,
+              On windows this is always .lib
+          </td>
+        </tr>
+      </table>
+    </div>
+
     <div *ngIf="!project.buildTool">
       No Build Tool
     </div>
@@ -113,13 +116,18 @@
       </div>
     </div>
 
+    <md-divider></md-divider>
     <h3>Build Outputs</h3>
-    <p>It's ok if you don't know where the project will install a library.
-      Leave the directory set to its default value.
-      The build will fail if the linker can't find the library. 
-      If that happens you can manually edit the path later.
-      You should still try and provide a library so that the CMake code is generated.
-    </p>
+    <div class="info">
+      <md-icon>info_outline</md-icon>
+
+        It's ok if you don't know where the project will install a library.
+        Leave the directory set to its default value.
+        The build will fail if the linker can't find the library. 
+        If that happens you can manually edit the path later.
+        You should still try and provide a library so that the CMake code is generated.
+    </div>
+
     <md-card *ngFor="let lib of project.libraryOutputs; let i = index">
       
       <md-input-container>
@@ -200,7 +208,7 @@
   </div>
 
   <div *ngIf="project.kind !== 'findpackage'">
-
+    <md-divider></md-divider>
     <h3>Dependencies</h3>
 
     <project-list [projects]="projectDependencies" (deleteRequest)="onDeleteDependency($event)" editable="true" deletable="true"></project-list>

@@ -13,6 +13,25 @@ button {
   margin-top: 1em;
   margin-bottom: 1em;
 }
+table {
+  margin-bottom: 1em;
+}
+th, td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px dashed #bce8f1;
+}
+td {
+  vertical-align: bottom;
+}
+.info {
+  border: 1px solid #bce8f1;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  color: #31708f;
+  background-color: #d9edf7;
+}
   `]
 })
 export class ProjectDetailComponent implements OnInit {

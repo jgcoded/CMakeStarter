@@ -1,6 +1,10 @@
 body { 
-  font-family: Roboto, Arial, sans-serif; 
+  font-family: Roboto, Arial, sans-serif;
+  margin: 0;
 }
 .CodeMirror {
   height: auto;
+}
+.content {
+  padding: 20px;
 }
