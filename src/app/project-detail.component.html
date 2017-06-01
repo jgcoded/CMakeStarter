@@ -5,7 +5,7 @@
       {{project.kind}}
     </h3>
 
-  <div *ngIf="project.name">
+  <div *ngIf="project.name !== undefined">
     <md-input-container>
       <input mdInput [(ngModel)]="project.name" placeholder="Project Name" />
     </md-input-container>

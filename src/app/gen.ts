@@ -316,7 +316,7 @@ function GenerateExternalProjectAddEndPartial(
   thirdParty: ThirdPartyProject,
   dependencies: Array<string>): string {
 
-  let result = ')';
+  let result = '\n)\n';
 
   if(thirdParty.libraryOutputs) {
     thirdParty.libraryOutputs.forEach(outputLib => {
@@ -330,8 +330,7 @@ function GenerateExternalProjectAddEndPartial(
 
     let dependenciesString: string = dependencies.join(' ');
 
-    result += `
-set(${outputLib.name}_BUILD_TYPE ${projectType})
+    result += `set(${outputLib.name}_BUILD_TYPE ${projectType})
 set(PREFIX lib)
 set(EXTENSION ${extension})
 if(WIN32)
@@ -360,7 +359,7 @@ export function GenerateCMakeThirdPartyProjectString(
     throw new Error('Unexpected object: ' + cmakeProject);
   }
 
-  let args: string = cmakeProject.buildTool.cmakeArguments.join('\n\t\t');
+  let args: string = cmakeProject.buildTool.cmakeArguments.join('\n        ');
   let beginPartial: string = GenerateExternalProjectAddBeginPartial(cmakeProject);
   let endPartial: string = GenerateExternalProjectAddEndPartial(cmakeProject, dependencies);
   return `
@@ -390,6 +389,21 @@ ${endPartial}
 `;
 }
 
+export function GenerateDownloadThirdPartyProjectString(
+  makeProject: ThirdPartyProject,
+  dependencies: Array<string>): string {
+
+  let beginPartial: string = GenerateExternalProjectAddBeginPartial(makeProject);
+  let endPartial: string = GenerateExternalProjectAddEndPartial(makeProject, dependencies);
+  return `
+${beginPartial}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND ""
+${endPartial}
+`;
+}
+
 export function GenerateThirdPartyCMakeFile(
   dependencies: Array<ThirdPartyProject>,
   dependenciesMap: Map<number, Array<string>>): string {
@@ -398,9 +412,8 @@ export function GenerateThirdPartyCMakeFile(
 
   dependencies.forEach(thirdParty => {
 
-    if(thirdParty.buildTool) {
-
-      let thirdPartyDeps: Array<string> = dependenciesMap.get(thirdParty.id);
+    let thirdPartyDeps: Array<string> = dependenciesMap.get(thirdParty.id);
+    if(thirdParty.buildTool != undefined) {
       switch(thirdParty.buildTool.kind) {
         case 'cmake':
           allDependencyStrings +=
@@ -414,7 +427,7 @@ export function GenerateThirdPartyCMakeFile(
           throw new Error('Unexpected object: ' + thirdParty);
       }
     } else { // no build tool - just add the target to download
-      allDependencyStrings += GenerateExternalProjectAddBeginPartial(thirdParty) + ')';
+      allDependencyStrings += GenerateDownloadThirdPartyProjectString(thirdParty, thirdPartyDeps);
     }
   });
 
