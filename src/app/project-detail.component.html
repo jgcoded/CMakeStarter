@@ -1,31 +1,24 @@
 <div *ngIf="project">
 
-  <div *ngIf="project.kind !== 'thirdparty'">
-    <h2>{{project.name}} details</h2>
-
+    <h2>{{ getProjectName() }} details</h2>
     <h3>
       {{project.kind}}
     </h3>
 
+  <div *ngIf="project.name">
     <div>
       <label>Project Name: </label>
       <input [(ngModel)]="project.name" placeholder="MyAwesomeProject" />
     </div>
-
-    <div *ngIf="project.kind==='library'">
-      <label>Build as a static library?</label>
-      <input type="checkbox" [(ngModel)]="project.isStaticLibrary" />
-    </div>
-
   </div>
 
-  <div *ngIf="project.kind === 'thirdparty'">
+  <div *ngIf="project.kind==='library'">
+    <label>Build as a static library?</label>
+    <input type="checkbox" [(ngModel)]="project.isStaticLibrary" />
+  </div>
 
-    <div *ngIf="project.source.kind !== 'findpackage'">
-      <h2>{{project.name}} details</h2>
-      <label>Project Name: </label>
-      <input [(ngModel)]="project.name" placeholder="MyAwesomeProject" />
-    </div>
+
+  <div *ngIf="project.kind === 'thirdparty'">
 
     <div *ngIf="project.source.kind === 'file'">
       <h3>Download</h3>
@@ -47,50 +40,41 @@
       </div>
     </div>
 
-    <div *ngIf="project.source.kind === 'findpackage'">
-      <h2>{{cmakePackageToName[project.source.package]}} Package</h2>
+    <p>
+      You can use CMake variables in the following <b>Build</b> and <b>Build Outputs</b> sections.
+      The CMake variables listed in the table below might be useful.
+      Some of the variables are created by this tool.
+      You can use these variables to customize the build.
+    </p>
+    <table>
+      <tr>
+        <td>Variable Name</td>
+        <td>Description</td>
+      </tr>
+      <tr>
+        <td>CMAKE_BUILD_TYPE</td>
+        <td>Specifies the build type (Debug, Release, etc)</td>
+      </tr>
+      <tr>
+        <td>THIRD_PARTY_INSTALL_PREFIX</td>
+        <td>The directory where all third party projects should install their outputs</td>
+      </tr>
+      <tr>
+        <td>SOURCE_DIR</td>
+        <td>The root directory where this project was downloaded/extracted to</td>
+      </tr>
+      <tr>
+        <td>PREFIX</td>
+        <td>A platform-dependent prefix. On Unix this is lib, on Windows this is blank</td>
+      </tr>
+      <tr>
+        <td>EXTENSION</td>
+        <td>A platform and library type dependent suffix. On unix this is either .a or .so,
+            On windows this is always .lib
+        </td>
+      </tr>
+    </table>
 
-      <select [(ngModel)]="project.source.package">
-        <option *ngFor="let package of cmakePackageToName; let i=index" [value]="i">{{package}}</option>
-      </select>
-    </div>
-
-    <div *ngIf="project.source.kind !== 'findpackage'">
-      <p>
-        You can use CMake variables in the following <b>Build</b> and <b>Build Outputs</b> sections.
-        The CMake variables listed in the table below might be useful.
-        Some of the variables are created by this tool.
-        You can use these variables to customize the build.
-      </p>
-      <table>
-        <tr>
-          <td>Variable Name</td>
-          <td>Description</td>
-        </tr>
-        <tr>
-          <td>CMAKE_BUILD_TYPE</td>
-          <td>Specifies the build type (Debug, Release, etc)</td>
-        </tr>
-        <tr>
-          <td>THIRD_PARTY_INSTALL_PREFIX</td>
-          <td>The directory where all third party projects should install their outputs</td>
-        </tr>
-        <tr>
-          <td>SOURCE_DIR</td>
-          <td>The root directory where this project was downloaded/extracted to</td>
-        </tr>
-        <tr>
-          <td>PREFIX</td>
-          <td>A platform-dependent prefix. On Unix this is lib, on Windows this is blank</td>
-        </tr>
-        <tr>
-          <td>EXTENSION</td>
-          <td>A platform and library type dependent suffix. On unix this is either .a or .so,
-             On windows this is always .lib
-          </td>
-        </tr>
-      </table>
-    </div>
 
     <div *ngIf="project.buildTool">
 
@@ -98,7 +82,7 @@
 
       <div *ngIf="project.buildTool.kind === 'cmake'">
         <label>CMake Arguments</label>
-        <div *ngFor="let arg of project.buildTool.cmakeArguments; let i=index">
+        <div *ngFor="let arg of project.buildTool.cmakeArguments; let i=index; trackBy: trackStringArray">
           <input size="80" [(ngModel)]="project.buildTool.cmakeArguments[i]" />
           <button (click)="removeCMakeArgument(i)">Remove</button>
         </div>
@@ -119,37 +103,88 @@
       </div>
     </div>
 
-    <div *ngIf="project.source.kind !== 'findpackage'">
-      <h3>Build Outputs</h3>
-      <div *ngFor="let lib of project.libraryOutputs; let i = index">
-        <div>
-          <label>Library Name: </label>
-          <input [(ngModel)]="lib.name" placeholder="Library name w/o prefix or suffix e.g., gtest, mongoc" />
-        </div>
-        <div>
-          <label>Is this a static library?</label>
-          <input type="checkbox" [(ngModel)]="lib.isStaticLibrary" />
-        </div>
-        <div>
-          <label>Expected Output Directory:</label>
-          <input size="80" [(ngModel)]="lib.outputDirectory" placeholder="In what directory can the library be found?" />
-        </div>
-        <div>
-          Directory where CMake will attempt to find the library file:
-          {{ lib.outputDirectory }}/{{ '${PREFIX}' }}{{lib.name}}.{{'${EXTENSION}' }}
-        </div>
-
-        <button (click)="removeLibraryOutput(i)">Remove</button>
-        <hr >
+    <h3>Build Outputs</h3>
+    <p>It's ok if you don't know where the project will install a library.
+      Leave the directory set to its default value.
+      The build will fail if the linker can't find the library. 
+      If that happens you can manually edit the path later.
+      You should still try and provide a library so that the CMake code is generated.
+    </p>
+    <div *ngFor="let lib of project.libraryOutputs; let i = index">
+      <div>
+        <label>Library Name: </label>
+        <input [(ngModel)]="lib.name" placeholder="Library name w/o prefix or suffix e.g., gtest, mongoc" />
+      </div>
+      <div>
+        <label>Is this a static library?</label>
+        <input type="checkbox" [(ngModel)]="lib.isStaticLibrary" />
+      </div>
+      <div>
+        <label>Expected Output Directory:</label>
+        <input size="80" [(ngModel)]="lib.outputDirectory" placeholder="In what directory can the library be found?" />
+      </div>
+      <div>
+        Directory where CMake will attempt to find the library file:
+        {{ lib.outputDirectory }}/{{ '${PREFIX}' }}{{lib.name}}.{{'${EXTENSION}' }}
       </div>
 
-      <button (click)="addLibraryOutput()">Add Output Library</button>
+      <button (click)="removeLibraryOutput(i)">Remove</button>
+      <hr >
     </div>
 
+    <button (click)="addLibraryOutput()">Add Output Library</button>
 
   </div>
 
-  <div *ngIf="project.kind !== 'thirdparty' || project.source.kind !== 'findpackage'">
+  <div *ngIf="project.kind === 'findpackage'">
+    <select [(ngModel)]="project.package">
+      <option *ngFor="let package of cmakePackageToName; let i=index" [value]="i">{{package}}</option>
+    </select>
+
+    <div>
+      <label>Is this package required?</label>
+      <input [(ngModel)]="project.required" type="checkbox" />
+    </div>
+
+    <div>
+      <label>Package Version (Major.Minor.Revision):</label>
+      <input [(ngModel)]="project.version" placeholder="Leave empty if not required" />
+    </div>
+
+    <div>
+      <label>Must the version match exactly?</label>
+      <input [(ngModel)]="project.exact" type="checkbox" />
+    </div>
+
+    <div>
+      <label>Should CMake print an error if the package is not found?</label>
+      <input [(ngModel)]="project.quiet" type="checkbox" />
+    </div>
+
+    <div>
+      <label>Components</label>
+      <div *ngFor="let comp of project.components; let i = index; trackBy: trackStringArray">
+        <input [(ngModel)]="project.components[i]" />
+        <button (click)="removeComponent(i)">Remove</button>
+      </div>
+
+      <button (click)="addComponent()">Add Component</button>
+    </div>
+ 
+    <div>
+      <label>Optional Components</label>
+      <div *ngFor="let comp of project.optionalComponents; let i = index; trackBy: trackStringArray">
+        <input [(ngModel)]="project.optionalComponents[i]" />
+        <button (click)="removeOptionalComponent(i)">Remove</button>
+      </div>
+
+      <button (click)="addOptionalComponent()">Add Component</button>
+  
+    </div>
+
+  </div>
+
+  <div *ngIf="project.kind !== 'findpackage'">
 
     <h3>Dependencies</h3>
 

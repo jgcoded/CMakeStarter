@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, AfterViewInit } from '@angular/core';
-import { Project } from './models';
+import { Project, UserProject } from './models';
 import { ProjectService } from './project.service';
 import { Tree } from './tree-view.component';
 
@@ -21,7 +21,7 @@ export class CMakePreviewComponent implements OnInit, AfterViewInit {
 
   previewTitle: string;
   preview: string;
-  userProjects: Project[];
+  userProjects: Array<UserProject>;
 
   readonly THIRDPARTY_CMAKE_NODE_ID: number = -1;
   readonly ROOT_CMAKE_NODE_ID: number = -2;

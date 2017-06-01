@@ -45,6 +45,7 @@ export class ProjectService {
     return Promise.resolve(
       DEFAULT_SOLUTION.userProjects
         .concat(DEFAULT_SOLUTION.thirdPartyProjects)
+        .concat(DEFAULT_SOLUTION.findPackageProjects)
     );
   }
 
@@ -53,7 +54,7 @@ export class ProjectService {
       .then(projects => projects.find(project => project.id === id));
   }
 
-  getUserProjects(): Promise<Array<Project>> {
+  getUserProjects(): Promise<Array<UserProject>> {
     return Promise.resolve(DEFAULT_SOLUTION.userProjects);
   }
 
@@ -76,7 +77,8 @@ export class ProjectService {
 
       return this.getDependencyIds(id).then((ids: Array<number>) => {
 
-        let projects: Array<Project> = DEFAULT_SOLUTION.thirdPartyProjects;
+        let projects: Array<Project> = DEFAULT_SOLUTION.thirdPartyProjects
+          .concat(DEFAULT_SOLUTION.findPackageProjects);
 
         if(!isThirdParty) {
           projects = projects.concat(DEFAULT_SOLUTION.userProjects);
@@ -89,7 +91,7 @@ export class ProjectService {
   }
 
   generateRootCMakeFile(): Promise<string> {
-    return this.getSolutionName().then(solutionName => GenerateRootCMakeListsTxt(solutionName));
+    return this.getSolutionName().then(solutionName => GenerateRootCMakeListsTxt(solutionName, DEFAULT_SOLUTION.findPackageProjects));
   }
 
   generateSrcCMakeFile(): Promise<string> {
@@ -124,7 +126,7 @@ export class ProjectService {
 
     return Promise.resolve(
       Promise.all(sortedProjectIds.map(id => this.getProject(id))).then(
-        sortedProjects => GenerateSrcDirectoryCMakeListsTxt(sortedProjects)
+        sortedProjects => GenerateSrcDirectoryCMakeListsTxt(sortedProjects as UserProject[])
       ));
   }
 
@@ -135,8 +137,8 @@ export class ProjectService {
     // get subgraph of third party deps
 
     let subgraph: AdjacencyList = new Map();
-    let thirdParty: Array<Project> = DEFAULT_SOLUTION.thirdPartyProjects
-      .filter(project => project.kind === 'thirdparty' && project.source.kind !== 'findpackage');
+    let thirdParty: Array<ThirdPartyProject> = DEFAULT_SOLUTION.thirdPartyProjects
+      .filter(project => project.kind === 'thirdparty') as ThirdPartyProject[];
 
     thirdParty.forEach(project => {
       subgraph.set(project.id, DEFAULT_SOLUTION.dependencyGraph.get(project.id));
@@ -170,20 +172,20 @@ export class ProjectService {
         .then(sortedThirdPartyProjects => GenerateThirdPartyCMakeFile(<Array<ThirdPartyProject>>sortedThirdPartyProjects, thirdPartyNames));
   }
 
-  generateUserProjectCMake(project: Project): Promise<string> {
+  generateUserProjectCMake(project: UserProject): Promise<string> {
 
     return this.getDependencies(project.id)
     .then(projects => {
 
       return this.getSolutionName()
         .then(solutionName => {
-          let subprojects: Array<Project> = [];
+          let subprojects: Array<UserProject> = [];
           let thirdParty: Array<ThirdPartyProject> = [];
 
           projects.forEach(project => {
             if(project.kind === 'thirdparty') {
               thirdParty.push(project);
-            } else {
+            } else if(project.kind !== 'findpackage') {
               subprojects.push(project);
             }
 
@@ -199,6 +201,8 @@ export class ProjectService {
         project.id = id;
         if(project.kind === 'thirdparty') {
           DEFAULT_SOLUTION.thirdPartyProjects.push(project);
+        } else if(project.kind === 'findpackage') {
+          DEFAULT_SOLUTION.findPackageProjects.push(project);
         } else {
           DEFAULT_SOLUTION.userProjects.push(project);
         }

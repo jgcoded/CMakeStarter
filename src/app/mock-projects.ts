@@ -3,14 +3,17 @@ import {
   CMakePackage,
   CMAKE_PACKAGE_TO_NAME,
   ThirdPartyProject,
-  ThirdPartySource, 
-  UserProject} from './models';
+  ThirdPartySource,
+  FindPackageProject,
+  UserProject
+} from './models';
 import { AdjacencyList } from './graph';
 
 export interface Solution {
   solutionName: string;
   userProjects: Array<Project>;
   thirdPartyProjects: Array<Project>;
+  findPackageProjects: Array<FindPackageProject>;
   dependencyGraph: Map<number, Array<number>>;
 }
 
@@ -44,16 +47,15 @@ export const DEFAULT_SOLUTION: Solution = {
             outputDirectory: '${THIRD_PARTY_INSTALL_PREFIX}/lib'
           }
         ]
-      },
-      {
-        id: 6,
-        name: '',
-        kind: 'thirdparty',
-        source: {
-          kind: 'findpackage',
-          package: CMakePackage.Boost
-        }
       }
+  ],
+  findPackageProjects: [
+    {
+      id: 6,
+      kind: 'findpackage',
+      package: CMakePackage.Boost,
+      required: true
+    }
   ],
   dependencyGraph: new Map<number, Array<number>>([
     // 0 = mylib has no dependencies

@@ -39,9 +39,23 @@ export class ProjectDetailComponent implements OnInit {
         .subscribe(dependencies => this.projectDependencies = dependencies);
     }
 
+    getProjectName(): string {
+      if(!this.project) {
+        return '';
+      }
+
+      if(this.project.kind === 'findpackage') {
+        return CMAKE_PACKAGE_TO_NAME[this.project.package];
+      } else {
+        return this.project.name;
+      }
+    }
+
     goBack(): void {
       this.location.back();
     }
+
+    trackStringArray(index: number, item: string): number { return index; }
 
     addCMakeArgument(): void {
       if(this.project.kind === 'thirdparty'
@@ -83,6 +97,45 @@ export class ProjectDetailComponent implements OnInit {
       }
     }
 
+    addComponent(): void {
+      if(this.project.kind === 'findpackage') {
+        if(!this.project.components) {
+          this.project.components = [];
+        }
+
+        this.project.components.push('');
+      }
+    }
+
+    removeComponent(index: number): void {
+      if(this.project.kind === 'findpackage') {
+        if(!this.project.components) {
+          return;
+        }
+
+        this.project.components.splice(index, 1);
+      }
+    }
+
+    addOptionalComponent(): void {
+      if(this.project.kind === 'findpackage') {
+        if(!this.project.optionalComponents) {
+          this.project.optionalComponents = [];
+        }
+
+        this.project.optionalComponents.push('');
+      }
+    }
+
+    removeOptionalComponent(index: number): void {
+      if(this.project.kind === 'findpackage') {
+        if(!this.project.optionalComponents) {
+          return;
+        }
+
+        this.project.optionalComponents.splice(index, 1);
+      }
+    }
     gotoDependency(dependency: Project): void {
       this.router.navigate(['/detail', dependency.id]);
     }

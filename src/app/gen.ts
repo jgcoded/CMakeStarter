@@ -4,10 +4,46 @@ import {
   ThirdPartySource,
   ThirdPartyProject,
   VersionControlSystem,
-  CMakePackage
+  CMakePackage,
+  FindPackageProject,
+  UserProject
 } from "./models";
 
-export function GenerateRootCMakeListsTxt(solutionName: string): string {
+function GenerateFindPackageString(findPackageProjects: Array<FindPackageProject>): string {
+  return findPackageProjects.map(project => {
+
+      let findPackageString = `find_package(${CMakePackage[project.package]} `;
+      if(project.version && project.version.length > 0) {
+        findPackageString += `${project.version} `;
+      }
+      if(project.exact) {
+        findPackageString += 'EXACT ';
+      }
+      if(project.quiet) {
+        findPackageString += 'QUIET ';
+      }
+      if(project.required) {
+        findPackageString += 'REQUIRED';
+      }
+      if(project.components && project.components.length > 0) {
+        findPackageString += '\n    COMPONENTS\n'
+        project.components.forEach(component => { findPackageString += `    ${component}\n` });
+      }
+      if(project.optionalComponents && project.optionalComponents.length > 0) {
+        findPackageString += '    OPTIONAL_COMPONENTS\n'
+        project.optionalComponents.forEach(component => { findPackageString += `    ${component}\n` });
+      }
+
+      findPackageString += ')';
+
+      return findPackageString;
+    }).join('\n');
+}
+
+export function GenerateRootCMakeListsTxt(solutionName: string, findPackageProjects: Array<FindPackageProject>): string {
+
+  let findPackageString = GenerateFindPackageString(findPackageProjects);
+
   let template: string =
     `
 # Sets the minimum required version of CMake needed to process this file.
@@ -46,6 +82,11 @@ set_property(GLOBAL PROPERTY AUTOGEN_TARGETS_FOLDER "Generated")
 # like Vim's YouCompleteMe.
 set(CMAKE_EXPORT_COMPILE_COMMANDS "ON")
 
+# CMake FindPackage projects. These are libraries that CMake knows how
+# to find automatically.
+# More info: https://cmake.org/cmake/help/latest/command/find_package.html
+${findPackageString}
+
 # Search for CMake files in the cmake/ directory as well
 set(CMAKE_MODULE_PATH \${CMAKE_MODULE_PATH} \${${solutionName}_CMAKE_DIR})
 
@@ -83,12 +124,10 @@ install(EXPORT ${solutionName} NAMESPACE ${solutionName}_ DESTINATION cmake)
   return template;
 }
 
-export function GenerateSrcDirectoryCMakeListsTxt(subprojects: Array<Project>): string {
+export function GenerateSrcDirectoryCMakeListsTxt(subprojects: Array<UserProject>): string {
 
   let subdirectories = subprojects.map(
-    function (dep: Project): string {
-      return `add_subdirectory(${dep.name})`;
-    }
+    dep => `add_subdirectory(${dep.name})`
   ).join('\n');
 
   return `
@@ -105,37 +144,35 @@ ${subdirectories}
 
 export function GenerateSubprojectCMakeListsTxt(
   solutionName: string,
-  project: Project,
-  userSubProjects: Array<Project>,
-  thirdParty: Array<ThirdPartyProject>): string {
+  project: UserProject,
+  userSubProjects: Array<UserProject>,
+  thirdParty: Array<Project>): string {
 
   let dependenciesList: string = thirdParty.map(
-    function (dep: ThirdPartyProject): string {
+    dep => {
 
-      let name: string = dep.name;
-      if(dep.source.kind === 'findpackage') {
-        return `    \${${CMakePackage[dep.source.package]}_LIBRARIES}`;
+      let name: string = '';
+      if(dep.kind === 'findpackage') {
+        return `    \${${CMakePackage[dep.package]}_LIBRARIES}`;
+      } else if(dep.kind === 'thirdparty') {
+
+        if(!dep.libraryOutputs) {
+          return '';
+        }
+
+        return dep.libraryOutputs.map(lib => `    ${lib.name}`).join('\n');
       }
-
-      if(!dep.libraryOutputs) {
-        return '';
-      }
-
-      return dep.libraryOutputs.map(lib => `    ${lib.name}`).join('\n');
     }
   ).concat(
     userSubProjects.map(
-      function (userProject: Project): string {
-        return `    ${userProject.name}`;
-      }
-    )
-    ).join('\n');
+      userProject => `    ${userProject.name}`
+    )).join('\n');
 
   let includeDirsList: string = thirdParty.map(
-    function (dep: ThirdPartyProject): string {
+    dep => {
 
-      if(dep.source.kind === 'findpackage') {
-        return `    \${${CMakePackage[dep.source.package]}_INCLUDE_DIRS}`;;
+      if(dep.kind === 'findpackage') {
+        return `    \${${CMakePackage[dep.package]}_INCLUDE_DIRS}`;;
       }
       return '';
     }

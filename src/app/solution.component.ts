@@ -40,8 +40,8 @@ export class SolutionComponent implements OnInit {
   }
 
   projectName(project: Project): string {
-    if(project.kind === 'thirdparty' && project.source.kind === 'findpackage') {
-      return CMAKE_PACKAGE_TO_NAME[project.source.package];
+    if(project.kind === 'findpackage') {
+      return CMAKE_PACKAGE_TO_NAME[project.package];
     }
 
     return project.name;

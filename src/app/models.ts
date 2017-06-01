@@ -33,20 +33,7 @@ export interface FileSource {
   fileUrl: string;
 }
 
-export interface FindPackageSource {
-  kind: 'findpackage';
-  package: CMakePackage;
-  version?: string;
-  exact?: boolean;
-  quiet?: boolean;
-  module?: boolean;
-  required?: boolean;
-  components?: Array<string>;
-  optionalComponents?: Array<string>;
-  noPolicyScope?: boolean;
-}
-
-export type ThirdPartySource = FileSource | VersionControlSource | FindPackageSource;
+export type ThirdPartySource = FileSource | VersionControlSource;
 
 export interface MakeBuildTool {
   kind: 'make';
@@ -74,11 +61,22 @@ export interface ThirdPartyProject extends Storable {
   name: string;
   source: ThirdPartySource;
   buildTool?: BuildTool;
-  libraryOutputs?: Array<ThirdPartyLibrary>;
+  libraryOutputs: Array<ThirdPartyLibrary>;
+}
+
+export interface FindPackageProject extends Storable {
+  kind: 'findpackage';
+  package: CMakePackage;
+  version?: string;
+  exact?: boolean;
+  quiet?: boolean;
+  required?: boolean;
+  components?: Array<string>;
+  optionalComponents?: Array<string>;
 }
 
 export type UserProject = Executable | Library;
-export type Project = UserProject | ThirdPartyProject;
+export type Project = UserProject | ThirdPartyProject | FindPackageProject;
 
 export enum CMakePackage {
   ALSA,

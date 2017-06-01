@@ -12,7 +12,7 @@ import {
   ThirdPartyProject,
   VersionControlSource,
   FileSource,
-  FindPackageSource,
+  FindPackageProject,
   VersionControlSystem,
   BuildTool,
   CMakeBuildTool,
@@ -129,29 +129,15 @@ export class AddProjectComponent {
       } else if(this.projectSource === 'file') {
 
         source = {
-          kind: "file",
+          kind: 'file',
           fileUrl: ''
-        };
-      } else if(this.projectSource === 'findpackage') {
-        
-        source = {
-          kind: "findpackage",
-          package: this.cmakePackage,
-          version: '',
-          exact: false,
-          quiet: false,
-          module: false,
-          required: true,
-          components: [],
-          optionalComponents: [],
-          noPolicyScope: false
         };
       }
 
       let buildTool: BuildTool = undefined;
       if(this.projectBuildTool === 'cmake') {
         buildTool = {
-          kind: "cmake",
+          kind: 'cmake',
           cmakeArguments: [
             '-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}',
             '-DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_INSTALL_PREFIX}'
@@ -159,7 +145,7 @@ export class AddProjectComponent {
         }
       } else if(this.projectBuildTool === 'make') {
         buildTool = {
-          kind: "make",
+          kind: 'make',
           configureCommand: '',
           buildCommand: '',
           installCommand: ''
@@ -168,28 +154,37 @@ export class AddProjectComponent {
 
       project = {
         id: 0,
-        kind: "thirdparty",
+        kind: 'thirdparty',
         name: '',
         source: source,
         buildTool: buildTool,
         libraryOutputs: []
-      }
+      };
 
-    } else { // not a third party project
+    } else if(this.projectSource === 'findpackage') {
+    
+      project = {
+        id: 0,
+        kind: 'findpackage',
+        package: this.cmakePackage,
+        required: true
+      };
+
+    } else { // not a third party project or findpackage project
       
       if(this.isLibrary) {
         project = {
           id: 0,
-          kind: "executable",
+          kind: 'library',
           name: this.projectName,
-        }
+          isStaticLibrary: true
+        };
       } else {
         project = {
           id: 0,
-          kind: "library",
+          kind: 'executable',
           name: this.projectName,
-          isStaticLibrary: true
-        }
+        };
       }
     }
 
