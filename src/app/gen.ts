@@ -246,11 +246,11 @@ if(COMPILE_FLAGS)
     set_target_properties(\${TARGET} PROPERTIES COMPILE_FLAGS \${COMPILE_FLAGS})
 endif()
 
-# When using an MSVC compiler (used by Visual Studio), link the
+# When using an MSVC compiler (used by Visual Studio), you can link the
 # C Runtime Library as a static library.
-if(MSVC)
-    set_target_properties(\${TARGET} PROPERTIES COMPILE_FLAGS "\${COMPILE_FLAGS} /MT")
-endif()
+#if(MSVC)
+#    set_target_properties(\${TARGET} PROPERTIES COMPILE_FLAGS "\${COMPILE_FLAGS} /MT")
+#endif()
 
 # Add linker flags here.
 set_target_properties(\${TARGET} PROPERTIES LINK_FLAGS "")
