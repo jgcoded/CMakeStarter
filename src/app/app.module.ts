@@ -24,7 +24,6 @@ import { AddProjectComponent } from './add-project.component';
 import { CodeMirrorComponent } from './code-mirror.component';
 import { HomeComponent } from './home.component';
 
-import '../../node_modules/@angular/material/prebuilt-themes/indigo-pink.css';
 import '../styles.css';
 import '../../node_modules/hammerjs/hammer.min.js';
 
