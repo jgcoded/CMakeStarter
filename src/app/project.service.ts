@@ -160,8 +160,13 @@ export class ProjectService {
       deps.forEach(depId => {
 
         let found = thirdParty.find(thirdPartyProject => thirdPartyProject.id === depId);
-        dependencyNames.push(found.name);
-      })
+        if(!found.libraryOutputs || found.libraryOutputs.length == 0) {
+          return;
+        }
+        found.libraryOutputs.forEach(element => {
+          dependencyNames.push(element.name);
+        });
+      });
 
       thirdPartyNames.set(project.id, dependencyNames);
 
