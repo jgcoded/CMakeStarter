@@ -255,7 +255,7 @@ endif()
 # Add linker flags here.
 set_target_properties(\${TARGET} PROPERTIES LINK_FLAGS "")
 
-# Place this target into its a solution folder.
+# Place this target into a solution folder.
 set_target_properties(\${TARGET} PROPERTIES FOLDER "${solutionName}")
 
 # Add this project to the list of installed targets. When the install command
