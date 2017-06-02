@@ -3,7 +3,7 @@ import { ProjectService } from './project.service';
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import {
-  Project, 
+  Project,
   CMakePackage,
   CMAKE_PACKAGE_TO_NAME,
   Executable,
@@ -38,7 +38,7 @@ export class AddProjectComponent {
     private projectService: ProjectService,
     private location: Location,
     private router: Router
-  ){}
+  ) { }
 
   projectName: string;
   projectSource: string;
@@ -55,65 +55,70 @@ export class AddProjectComponent {
   submit(): void {
 
     let project: Project;
-    if(this.isThirdPartyProject) {
+    if (this.isThirdPartyProject) {
 
-      let source: ThirdPartySource;
-  
-      if(this.projectSource === 'vcs') {
+      if (this.projectSource === 'findpackage') {
 
-        source = {
-          kind: 'vcs',
-          versionControlSystem: VersionControlSystem.Git,
-          repoUrl: ''
-        }
-      
-      } else if(this.projectSource === 'file') {
-
-        source = {
-          kind: 'file',
-          fileUrl: ''
+        project = {
+          id: 0,
+          kind: 'findpackage',
+          package: this.cmakePackage,
+          required: true
         };
-      }
 
-      let buildTool: BuildTool = undefined;
-      if(this.projectBuildTool === 'cmake') {
-        buildTool = {
-          kind: 'cmake',
-          cmakeArguments: [
-            '-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}',
-            '-DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_INSTALL_PREFIX}'
-          ]
+      } else {
+
+        let source: ThirdPartySource;
+
+        if (this.projectSource === 'vcs') {
+
+          source = {
+            kind: 'vcs',
+            versionControlSystem: VersionControlSystem.Git,
+            repoUrl: ''
+          }
+
+        } else if (this.projectSource === 'file') {
+
+          source = {
+            kind: 'file',
+            fileUrl: ''
+          };
         }
-      } else if(this.projectBuildTool === 'make') {
-        buildTool = {
-          kind: 'make',
-          configureCommand: '',
-          buildCommand: '',
-          installCommand: ''
+
+        let buildTool: BuildTool = undefined;
+        if (this.projectBuildTool === 'cmake') {
+          buildTool = {
+            kind: 'cmake',
+            cmakeArguments: [
+              '-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}',
+              '-DCMAKE_INSTALL_PREFIX=${THIRD_PARTY_INSTALL_PREFIX}'
+            ]
+          }
+
+        } else if (this.projectBuildTool === 'make') {
+          buildTool = {
+            kind: 'make',
+            configureCommand: '',
+            buildCommand: '',
+            installCommand: ''
+          }
         }
+
+        project = {
+          id: 0,
+          kind: 'thirdparty',
+          name: '',
+          source: source,
+          buildTool: buildTool,
+          libraryOutputs: []
+        };
+
       }
-
-      project = {
-        id: 0,
-        kind: 'thirdparty',
-        name: '',
-        source: source,
-        buildTool: buildTool,
-        libraryOutputs: []
-      };
-
-    } else if(this.projectSource === 'findpackage') {
-    
-      project = {
-        id: 0,
-        kind: 'findpackage',
-        package: this.cmakePackage,
-        required: true
-      };
 
     } else { // not a third party project or findpackage project
-      
-      if(this.isLibrary) {
+
+      if (this.isLibrary) {
         project = {
           id: 0,
           kind: 'library',
