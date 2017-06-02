@@ -25,7 +25,10 @@ import {
   templateUrl: './add-project.component.html',
   styles: [`
 md-select {
-  margin-top: 1.5em;
+  margin: 1em 0em;
+}
+button {
+  margin: 2em 0em;
 }
 `]
 })

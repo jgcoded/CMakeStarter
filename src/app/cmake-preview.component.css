@@ -27,3 +27,6 @@ ul {
 md-icon {
   vertical-align: text-bottom;
 }
+button, a {
+  margin: 2em 0;
+}

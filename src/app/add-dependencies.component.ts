@@ -14,7 +14,7 @@ import { Project } from './models';
 <project-list [projects]="candidateDependencies" selectable="true" (multiSelectRequest)="onMultiSelect($event)" multiselect="true"></project-list>
 </div>
 
-<button md-raised-button (click)="done()">Add selected dependencies</button>
+<button md-raised-button class="mat-accent" (click)="done()">Add selected dependencies</button>
 <a md-raised-button  (click)="goBack()">Back</a>
 `,
   styles: [`

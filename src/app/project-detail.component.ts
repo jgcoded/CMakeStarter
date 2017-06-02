@@ -9,9 +9,8 @@ import { Project, VersionControlSystem, CMAKE_PACKAGE_TO_NAME } from './models';
     selector: 'project-detail',
     templateUrl: './project-detail.component.html',
     styles: [`
-button {
-  margin-top: 1em;
-  margin-bottom: 1em;
+button, a {
+  margin: 2em 0;
 }
 table {
   margin-bottom: 1em;

@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
   templateUrl: './home.component.html',
   styles: [`
 button {
-  margin-top: 2em;
+  margin: 1em 0;
 }
 `]
 })
