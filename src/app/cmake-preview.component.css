@@ -16,6 +16,7 @@ pre {
 .node {
   float: left;
   width: 200px;
+  cursor: pointer;
 }
 .download {
   margin-top: 1em;

@@ -122,8 +122,7 @@ export class AddProjectComponent {
         project = {
           id: 0,
           kind: 'library',
-          name: this.projectName,
-          isStaticLibrary: true
+          name: this.projectName
         };
       } else {
         project = {

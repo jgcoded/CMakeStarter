@@ -20,7 +20,7 @@ export interface Solution {
 export const DEFAULT_SOLUTION: Solution = {
   solutionName: 'MyProject',
   userProjects: [
-    { id: 0, kind: 'library', isStaticLibrary: true, name: 'mylib' },
+    { id: 0, kind: 'library', name: 'mylib' },
     { id: 1, kind: 'executable', name: 'app' },
     { id: 3, kind: 'executable', name: 'tests' }
   ],

@@ -11,10 +11,6 @@
     </md-input-container>
   </div>
 
-  <div *ngIf="project.kind==='library'">
-    <md-checkbox type="checkbox" [(ngModel)]="project.isStaticLibrary">Build as a static library</md-checkbox>
-  </div>
-
   <div *ngIf="project.kind === 'thirdparty'">
 
     <md-divider></md-divider>

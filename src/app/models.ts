@@ -12,7 +12,6 @@ export interface Executable extends Storable {
 export interface Library extends Storable {
   kind: 'library';
   name: string;
-  isStaticLibrary: boolean;
 }
 
 export enum VersionControlSystem {

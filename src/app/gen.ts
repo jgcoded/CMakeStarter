@@ -73,6 +73,11 @@ if(\${CMAKE_MAJOR_VERSION}.\${CMAKE_MINOR_VERSION} LESS 3.1)
     set(CMAKE_CXX_FLAGS "\${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
+# This option allows the users of the project to define if libraries should be
+# built as shared libraries. If a library is explicitly set to be built as
+# static, then it won't be built as a shared library.
+option(BUILD_SHARED_LIBS "Build libraries as shared unless explicitly static" ON)
+
 # Use solution folders. In Visual Studio this will place a solution within a folder.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Auto-generated files are placed in a "Generated" folder.
@@ -106,9 +111,7 @@ add_subdirectory(src/)
 
 # When installing, this command will place a .cmake file within the cmake/
 # directory where the project will be installed. This .cmake file can be
-# used by an outside project to reference the targets within this project
-# as if the outside project were building this project from its own build
-# tree.
+# used by an outside project to reference the targets within this project.
 #
 # The outside project just has to include the .cmake file using the include()
 # command, and then it can reference the targets defined in this project
@@ -116,9 +119,12 @@ add_subdirectory(src/)
 #
 # For example, if this project builds a library foo, and the namespace is
 # myproj, then the outside project can reference the library using myproj_foo
-# in its CMake code.
+# in its CMake code, like so:
+#
+# include(myproj)
+# target_link_libraries(otherProjectTarget myproj_foo)
+#
 install(EXPORT ${solutionName} NAMESPACE ${solutionName}_ DESTINATION cmake)
-
 `;
 
   return template;
@@ -196,31 +202,12 @@ set(SOURCES
     ${ project.kind === 'executable' ?
     'main.cpp': `${project.name}.cpp` }
 )
-${ project.kind !== 'executable' ? `
-# This option allows the builder to decide if this project should be built
-# as a static library or a shared library.
-option(${project.name}_STATIC "Build ${project.name} as a static library?" ${project.kind === 'library' && project.isStaticLibrary ? 'ON': 'OFF'})
-set(BUILD_TYPE )
-set(COMPILE_DEFINITIONS )
-# This if-block sets the appropriate compiler preprocessor macro needed by
-# the library code. On windows, this is needed when importing/exporting DLLs.
-if(${project.name}_STATIC)
-    set(BUILD_TYPE "STATIC")
-    # Add any other static library specific compiler preprocessor flags here.
-    set(COMPILE_DEFINITIONS ${project.name}_STATIC)
-else()
-    set(BUILD_TYPE "SHARED")
-    # Add any other shared library specific compiler preprocessor flags here. 
-    set(COMPILE_DEFINITIONS ${project.name}_EXPORT)
-endif()
-`: ''
-}
 ${ project.kind === 'executable' ?
   `# Add the executable to the build using the headers and sources.
 add_executable(\${TARGET} \${HEADERS} \${SOURCES})`
   :
   `# Add the library to the build the headers and sources.
-add_library(\${TARGET} \${BUILD_TYPE} \${HEADERS} \${SOURCES})`
+add_library(\${TARGET} \${HEADERS} \${SOURCES})`
 }
 
 # Add include directories here.
@@ -234,11 +221,7 @@ ${dependenciesList}
 )
 
 # Add project-specific compiler preprocessor variables here.
-target_compile_definitions(\${TARGET} PUBLIC
-${ project.kind !== 'executable' ?
-'\${COMPILE_DEFINITIONS}' : ''
-}
-)
+target_compile_definitions(\${TARGET} PUBLIC )
 
 # Add compiler flags to the following COMPILE_FLAGS variable.
 set(COMPILE_FLAGS "")
@@ -491,23 +474,18 @@ export function GenerateLibraryHeaderFile(projectName: string): string {
   return `
 #pragma once
 
-#ifdef _MSC_VER // Compiling with MSVC
+// Define preprocessor definitions needed for building DLLs on Windows
+#ifdef WIN32 && defined(BUILD_SHARED_LIBS)
 
-#ifdef ${projectName}_EXPORT // Are we building DLLs?
-#define API __declspec(dllexport)
-#else // Not building DLLs
+    #ifdef ${projectName}_EXPORTS // Are we creating the DLL?
+        #define API __declspec(dllexport)
+    #else //  We're importing the DLL
+        #define API __declspec(dllimport)
+    #endif
 
-#ifdef ${projectName}_STATIC // Are we building a static lib?
-#define API
-#else // Not building a static lib, so we're importing the DLL
-#define API __declspec(dllimport)
-#endif // API_STATIC
-
-#endif // EXPORT
-
-#else // _MSC_VER undefined
-#define API
-#endif // _MSC_VER
+#else // not WIN32 or not BUILD_SHARED_LIBS
+    #define API
+#endif
 
 // Standard library dependencies
 #include <string>
