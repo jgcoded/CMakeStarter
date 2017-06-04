@@ -254,6 +254,13 @@ export class ProjectService {
           DEFAULT_SOLUTION.thirdPartyProjects.splice(foundIndex, 1);
           return;
         }
+
+        foundIndex = DEFAULT_SOLUTION.findPackageProjects.findIndex(project => project.id === id);
+        if(foundIndex > -1) {
+          DEFAULT_SOLUTION.findPackageProjects.splice(foundIndex, 1);
+          return;
+        }
+
       });
   }
 
