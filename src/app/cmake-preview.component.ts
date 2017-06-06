@@ -177,7 +177,7 @@ export class CMakePreviewComponent implements OnInit, AfterViewInit {
 
     if(promise) {
       promise.then(value => this.onPreviewChange.emit(value))
-        .catch(reason => this.preview = `Error: Could not generate this file: ${reason}`);
+        .catch(reason => this.onPreviewChange.emit(`Error: Could not generate this file: ${reason}`));
     }
 
   }

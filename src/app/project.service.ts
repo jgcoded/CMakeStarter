@@ -132,25 +132,24 @@ export class ProjectService {
 
   generateThirdPartyCMakeFile(): Promise<string> {
 
-    // topo sort third party dependencies, 
-
     // get subgraph of third party deps
 
     let subgraph: AdjacencyList = new Map();
-    let thirdParty: Array<ThirdPartyProject> = DEFAULT_SOLUTION.thirdPartyProjects
-      .filter(project => project.kind === 'thirdparty') as ThirdPartyProject[];
+    let thirdParty: Array<Project> = DEFAULT_SOLUTION.thirdPartyProjects
+      .concat(DEFAULT_SOLUTION.findPackageProjects);
 
     thirdParty.forEach(project => {
       subgraph.set(project.id, DEFAULT_SOLUTION.dependencyGraph.get(project.id));
     });
 
-
+    // topo sort third party dependencies
     let sortedThirdParty = topologicalSort(subgraph);
     if(sortedThirdParty === null) {
       return Promise.reject("Could not topologically sort the dependency graph");
     }
     sortedThirdParty = sortedThirdParty.reverse();
 
+    // Map the sorted graph from project id to name
     let thirdPartyNames = new Map<number, Array<string>>();
     thirdParty.forEach(project => {
       let deps = DEFAULT_SOLUTION.dependencyGraph.get(project.id);
@@ -160,12 +159,14 @@ export class ProjectService {
       deps.forEach(depId => {
 
         let found = thirdParty.find(thirdPartyProject => thirdPartyProject.id === depId);
-        if(!found.libraryOutputs || found.libraryOutputs.length == 0) {
-          return;
+        if(found.kind === 'thirdparty') {
+          if(!found.libraryOutputs || found.libraryOutputs.length == 0) {
+            return;
+          }
+          found.libraryOutputs.forEach(element => {
+            dependencyNames.push(element.name);
+          });
         }
-        found.libraryOutputs.forEach(element => {
-          dependencyNames.push(element.name);
-        });
       });
 
       thirdPartyNames.set(project.id, dependencyNames);

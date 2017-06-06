@@ -395,6 +395,10 @@ export function GenerateThirdPartyCMakeFile(
 
   dependencies.forEach(thirdParty => {
 
+    if(thirdParty.kind !== 'thirdparty') {
+      return;
+    }
+
     let thirdPartyDeps: Array<string> = dependenciesMap.get(thirdParty.id);
     if(thirdParty.buildTool != undefined) {
       switch(thirdParty.buildTool.kind) {
