@@ -186,12 +186,12 @@ export class ProjectService {
       return this.getSolutionName()
         .then(solutionName => {
           let subprojects: Array<UserProject> = [];
-          let thirdParty: Array<ThirdPartyProject> = [];
+          let thirdParty: Array<Project> = [];
 
           projects.forEach(project => {
-            if(project.kind === 'thirdparty') {
+            if(project.kind === 'thirdparty' || project.kind === 'findpackage') {
               thirdParty.push(project);
-            } else if(project.kind !== 'findpackage') {
+            } else {
               subprojects.push(project);
             }
 
