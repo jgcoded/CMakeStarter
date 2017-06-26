@@ -77,6 +77,9 @@ endif()
 # built as shared libraries. If a library is explicitly set to be built as
 # static, then it won't be built as a shared library.
 option(BUILD_SHARED_LIBS "Build libraries as shared unless explicitly static" ON)
+if(BUILD_SHARED_LIBS)
+    add_definitions(-DBUILD_SHARED_LIBS)
+endif()
 
 # Use solution folders. In Visual Studio this will place a solution within a folder.
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
